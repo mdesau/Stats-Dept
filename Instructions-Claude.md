@@ -48,8 +48,15 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
     3. Leave as-is and simply guarantee durable access to the org account.
 - [ ] **Verify + test each project in its new (clasp) workflow** before any
   `1.0.0` release — this is the gate that ends the migration phase.
-- [ ] **Reconcile legacy in-file changelogs** into the single `CHANGELOG.md`
-  (keep it tidy as new changes land under `[Unreleased]`).
+- [x] **Reconcile legacy in-file changelogs** into the single `CHANGELOG.md`
+  (done — preserved verbatim in the "Pre-migration project history" section;
+  keep it tidy as new changes land under `[Unreleased]`).
+- [ ] **Rename script files to drop stale version labels.** Filenames still
+  carry old per-project versions (e.g. `AutoUpdate Regs to Stats-v2.0-STABLE.js`,
+  `StatsAlignPipeline-6.3-Stable.js`) that no longer match repo-level SemVer.
+  Renaming touches the cloud project (file identity) so it belongs to the code
+  phase, not this migration. When done, update `appsscript.json`/clasp as needed
+  and `clasp push` deliberately.
 - [ ] Only after the above: consider actual code changes (a new, separate phase).
 
 ---
