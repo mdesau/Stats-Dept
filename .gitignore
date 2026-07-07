@@ -1,0 +1,46 @@
+# ==============================================================================
+# .gitignore — Stats-Dept
+# Google Apps Script (clasp) + Node tooling + macOS
+# ------------------------------------------------------------------------------
+# WHY: Keep secrets, machine-specific junk, and installable dependencies OUT of
+# version control. Anything a collaborator can regenerate or that is sensitive
+# should not be committed.
+# ==============================================================================
+
+# --- Secrets / credentials (NEVER commit) -------------------------------------
+# clasp's global OAuth credentials live in your HOME dir, but if a local copy is
+# ever created here, it must never be committed.
+.clasprc.json
+# Environment files that may hold API keys or config secrets.
+.env
+.env.*
+*.key
+*.pem
+
+# --- Node tooling (clasp is installed via npm) --------------------------------
+node_modules/
+npm-debug.log*
+package-lock.json.bak
+
+# --- macOS system files -------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# --- Editor / IDE -------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# --- Logs / temp --------------------------------------------------------------
+*.log
+*.tmp
+
+# ==============================================================================
+# NOTE: We intentionally DO commit the following (do not ignore them):
+#   - .clasp.json      (per-project Script ID "wiring" — not a secret; needed
+#                        so collaborators can pull/push the same cloud project)
+#   - appsscript.json  (Apps Script manifest — part of the source)
+#   - _original-exports/ (baseline snapshot of the pre-Git .gs/.html exports)
+# ==============================================================================
