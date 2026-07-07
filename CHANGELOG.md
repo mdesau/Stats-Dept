@@ -5,45 +5,83 @@ All notable changes to the **Stats-Dept** repository are documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> **Note on scope:** This is a **single consolidated changelog** for the whole
-> repository, which contains two Apps Script projects (**StatsImport** = Stats
-> Align Pipeline, **StatsUpdate** = AutoUpdate Regs to Stats). Each entry is
-> prefixed with the affected project where useful. The projects previously kept
-> their own in-file change logs (StatsUpdate internal v2.4, StatsImport internal
-> v6.3); those historical, per-project logs are preserved inside the source file
-> headers and will be reconciled into this file over time.
+> **This is a single consolidated changelog** for the whole repository, which
+> contains two Apps Script projects:
+> **StatsUpdate** (AutoUpdate Regs to Stats) and **StatsImport** (Stats Align Pipeline).
+>
+> **Phase:** The project is in the initial-development / **migration** phase
+> (`0.x.x`). "Migration" = moving already-working cloud scripts into Git/GitHub +
+> clasp. We will **not** cut `1.0.0` until every project is verified and tested
+> stable in its new home. Repo-level releases are numbered `0.x.x` and tagged.
+>
+> The **Pre-migration project history** section near the bottom preserves each
+> script's original in-file change log verbatim (those version numbers — 2.x and
+> 6.x — are the projects' own historical lineages, not repo releases).
+
+---
 
 ## [Unreleased]
-### Added
-- Pulled authoritative source code from the Apps Script cloud via `clasp`:
-  - `StatsUpdate/` — AutoUpdate main, MockDraft, MockDraftDialog.html, manifest.
-  - `StatsImport/` — Stats Align Pipeline 6.3 plus dormant legacy versions
-    (`v5.0`, `v4.6`) that exist in the cloud project, and manifest.
-- `.clasp.json` wiring committed for both projects (Script IDs; not secrets).
-
-### Notes
-- Reconciliation confirmed the pulled cloud code is **byte-for-byte identical**
-  to the `_original-exports/` snapshots — no version drift.
-- **Two Google accounts** are in play: `StatsUpdate` is owned by
-  `mdesau@gmail.com`; `StatsImport` is owned by `gamechanger@wcwaabaseball.org`.
-  clasp is configured with a named user (`gamechanger`) to sync StatsImport.
-  Account consolidation is deferred and tracked in `BUGS.md` (BUG-001).
-- **No application code changed.** Live Sheets/scripts untouched.
+### Changed
+- (track day-to-day changes here)
 
 ## [0.1.0] - 2026-07-07
+_First version-controlled release — the migration baseline. **No application
+code was changed**; live Sheets/scripts remain untouched._
+
 ### Added
-- Initial Git repository for the WCWAA Stats Department tooling.
-- Repository scaffolding: `README.md`, `CHANGELOG.md`, `BUGS.md`,
+- Initialized the Git repository and pushed to `github.com/mdesau/Stats-Dept`
+  (SSH), located locally outside Google Drive to avoid `.git` sync corruption.
+- Repository scaffolding: `README.md`, this `CHANGELOG.md`, `BUGS.md`,
   `Instructions-Claude.md`, and a clasp/Node/macOS-aware `.gitignore`.
-- Two-project structure established:
-  - `StatsImport/` — Stats Align Pipeline (internal header version 6.3).
-  - `StatsUpdate/` — AutoUpdate Regs to Stats + Mock Draft (internal header
-    version 2.4).
-- `_original-exports/` baseline snapshot of the original `.txt`/`.html` exports
-  as first pulled out of the Apps Script editor (checksum-verified during move).
-- Decision to adopt Google `clasp` for two-way sync between the Apps Script
-  cloud projects and this repository.
+- Two-project structure:
+  - `StatsUpdate/` — AutoUpdate Regs to Stats + Mock Draft (internal v2.4),
+    owned by `mdesau@gmail.com`.
+  - `StatsImport/` — Stats Align Pipeline (internal v6.3), owned by
+    `gamechanger@wcwaabaseball.org`; also contains dormant legacy files
+    (`v5.0`, `v4.6`) preserved from the cloud project.
+- Adopted Google **clasp** for two-way sync; committed each project's
+  `.clasp.json` wiring (Script IDs — not secrets) and `appsscript.json` manifest.
+- Pulled authoritative source code from the Apps Script cloud for both projects.
+- `_original-exports/` — checksum-verified snapshot of the original `.txt`/`.html`
+  exports as first taken from the Apps Script editor.
+
+### Verified
+- Pulled cloud code is **byte-for-byte identical** to `_original-exports/`
+  (no version drift between the "stable" exports and live code).
+- No secrets in source: Gemini key is read from Script Properties
+  (`GEMINI_API_KEY`), never hardcoded.
 
 ### Notes
-- **No application code was changed** in this release. This is purely the
-  version-control foundation. Live scripts in Google Sheets are untouched.
+- Two Google accounts own the two projects; clasp uses a named user
+  (`gamechanger`) for StatsImport. Consolidating accounts is a tracked roadmap
+  item in `Instructions-Claude.md` (not a bug).
+- Removed the original `.txt`/`.html` copies from Google Drive after confirming
+  they are committed to Git and pushed to GitHub.
+
+---
+
+## Pre-migration project history
+
+> Preserved verbatim from each script's in-file `CHANGE LOG` header for
+> historical context. These version numbers belong to each project's own
+> lineage and predate this repository. They are **not** repo (`0.x.x`) releases.
+
+### StatsUpdate — AutoUpdate Regs to Stats
+| Version | Date | Description |
+|---------|------|-------------|
+| 2.4 | 2026-02-20 | Added **Update Evals**: syncs Draft values from Draft_Stats to the Evals sheet using 3-way matching (First Name, Last Name, Division). Header-based column lookup for flexibility. Marks non-matches as "Not in Draft". |
+| 2.3 | 2026-01-31 | Refactored AI infrastructure to use a unified `GeminiClient` class. Centralized API handling, retry logic, and JSON parsing, reducing code redundancy. |
+| 2.2 | 2026-01-23 | Added **Sanity Checker**: bi-directional validation between Registration and Draft_Stats. Identifies orphaned records and missing players; generates a timestamped report in "Sanity_Check_Results". |
+| 2.1 | 2026-01-23 | Enhanced sync accounting: "Already Updated" vs "Updated" tracking, "NOT Updated" verification, improved UI messaging, workflow docs. Fixed duplicate-registration handling (prioritizes draft-eligible over excluded divisions). Added NAME_MATCHING debug logging with character-code analysis and DUPLICATE_REG detection. |
+| 2.0 | 2026-01-15 | [Baseline] Official foundation for AI-integrated lineage. |
+| 1.0 | 2026-01-19 | Core sync and logging baseline (UI exposes Update Draft Stats only). |
+
+### StatsImport — Stats Align Pipeline
+| Version | Date | Status | Description |
+|---------|------|--------|-------------|
+| 6.3 | 2026-01-12 | ACTIVE | [Refactor] Batch AI mapping for Tier 4 residual stats. |
+| 6.2 | 2026-01-12 | STABLE | [Logic] Dynamic header detection & AI section anchoring. |
+| 6.1-Ref | 2026-01-12 | STABLE | [Refine] Added "glossary" filter & improved fail logging. |
+| 6.0 | 2026-01-11 | STABLE | [Milestone] Hybrid Direct + Dynamic AI mapping introduced. |
+| 5.0 | 2026-01-11 | STABLE | [Legacy] AI-only mapping for league-wide stats. |
+| 4.6 | 2026-01-11 | STABLE | [Legacy] Direct-only mapping for single-team stats. |

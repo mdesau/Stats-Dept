@@ -29,12 +29,28 @@ cd StatsUpdate && clasp pull
 # StatsImport (org account) — MUST pass the named user
 cd StatsImport && clasp pull --user gamechanger
 ```
-Consolidation of accounts is deferred — see `BUGS.md` (BUG-001).
+---
 
-### Next possible steps (future sessions)
-- Decide on account consolidation (BUG-001).
-- Begin reconciling the two in-file changelogs into the single `CHANGELOG.md`.
-- Only then consider any actual code changes (new phase).
+## To Do / Roadmap
+
+Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md`.)
+
+- [ ] **Account consolidation (decide + execute).** The two projects are owned by
+  different Google accounts (`mdesau@gmail.com` vs `gamechanger@wcwaabaseball.org`).
+  Everything works today via clasp named users, but the org account creates a
+  continuity/bus-factor risk (losing org access = losing owner control of
+  StatsImport, its Script Properties incl. `GEMINI_API_KEY`, and triggers).
+  Options to weigh (each touches live production):
+    1. Transfer ownership of the StatsImport **Sheet** (container-bound script
+       moves with its Sheet); may be blocked by org cross-domain policy.
+    2. "Make a copy" under the target account — creates a **new Script ID** and
+       does **not** carry over Script Properties or triggers (needs re-setup).
+    3. Leave as-is and simply guarantee durable access to the org account.
+- [ ] **Verify + test each project in its new (clasp) workflow** before any
+  `1.0.0` release — this is the gate that ends the migration phase.
+- [ ] **Reconcile legacy in-file changelogs** into the single `CHANGELOG.md`
+  (keep it tidy as new changes land under `[Unreleased]`).
+- [ ] Only after the above: consider actual code changes (a new, separate phase).
 
 ---
 
