@@ -8,22 +8,33 @@
 ## Current State
 
 - **Repo version:** `0.1.0` (initial development phase, `0.x.x`).
-- **Last commit:** _pending — first commit not yet made at time of writing._
-- **Uncommitted work:** Repository scaffolding created (README, CHANGELOG, BUGS,
-  this file, .gitignore). Source `.gs` code NOT yet pulled via clasp — the
-  `StatsUpdate/` and `StatsImport/` project folders are still empty placeholders.
-  `_original-exports/` holds the checksum-verified baseline `.txt`/`.html`.
-- **Golden rule this phase:** **NO application code changes.** We are only
-  establishing version control and pulling authoritative code from the cloud.
+- **Last release tag:** `v0.1.0`.
+- **Uncommitted work:** none expected after the "pull real code" commit.
+- **Code status:** Authoritative `.gs`/`.js` code pulled from the Apps Script
+  cloud via clasp into `StatsUpdate/` and `StatsImport/`. Verified byte-for-byte
+  identical to `_original-exports/`.
+- **Golden rule this phase:** **NO application code changes.** We only established
+  version control and pulled authoritative code from the cloud.
 
-### Immediate next steps
-1. `git init`, first commit `feat: initial project setup v0.1.0`, tag `v0.1.0`.
-2. Connect SSH remote `git@github.com:mdesau/Stats-Dept.git` and push.
-3. Install Node + clasp; `clasp login`.
-4. Capture the two Script IDs; `clasp clone/pull` into `StatsUpdate/` and
-   `StatsImport/`.
-5. Diff pulled cloud code against `_original-exports/` (filenames say v2.0/6.3
-   but headers say v2.4/6.3 — determine true source of truth).
+### Accounts (IMPORTANT)
+Two Google accounts own the two projects:
+- `StatsUpdate` → **mdesau@gmail.com** (clasp default user)
+- `StatsImport` → **gamechanger@wcwaabaseball.org** (clasp named user `gamechanger`)
+
+Sync commands:
+```bash
+# StatsUpdate (default account)
+cd StatsUpdate && clasp pull
+
+# StatsImport (org account) — MUST pass the named user
+cd StatsImport && clasp pull --user gamechanger
+```
+Consolidation of accounts is deferred — see `BUGS.md` (BUG-001).
+
+### Next possible steps (future sessions)
+- Decide on account consolidation (BUG-001).
+- Begin reconciling the two in-file changelogs into the single `CHANGELOG.md`.
+- Only then consider any actual code changes (new phase).
 
 ---
 
@@ -31,10 +42,14 @@
 
 Two Apps Script projects, one repo, one pipeline:
 
-| Folder | Project | Internal Ver | Role |
-|--------|---------|--------------|------|
-| `StatsImport/` | Stats Align Pipeline | 6.3 | Normalize coach CSVs → `Raw_Stats` |
-| `StatsUpdate/` | AutoUpdate Regs to Stats (+ Mock Draft) | 2.4 | Sync → `Draft_Stats`; AI tools |
+| Folder | Project | Internal Ver | Owner account | Role |
+|--------|---------|--------------|---------------|------|
+| `StatsImport/` | Stats Align Pipeline | 6.3 | gamechanger@wcwaabaseball.org | Normalize coach CSVs → `Raw_Stats` |
+| `StatsUpdate/` | AutoUpdate Regs to Stats (+ Mock Draft) | 2.4 | mdesau@gmail.com | Sync → `Draft_Stats`; AI tools |
+
+`StatsImport/` also contains dormant legacy files pulled from the cloud project:
+`StatsAlignPipeline-v5.0-Stable.js` and `StatsAlignPipeline-v4.6-Stable.js`
+(kept as-is; the active version is 6.3).
 
 ### Data dependencies (one-line flow)
 `Coach CSVs → StatsImport(aggregateAndAlignStats) → Raw_Stats → StatsUpdate(updateStatsFromRegistrations) → Draft_Stats → AI Scout / Mock Draft / Evals`
@@ -86,9 +101,19 @@ Two Apps Script projects, one repo, one pipeline:
 
 ---
 
+## clasp quick reference
+```bash
+export PATH="/opt/homebrew/bin:$PATH"   # node/clasp live under Homebrew
+clasp pull                # inside StatsUpdate/  (mdesau@gmail.com, default)
+clasp pull --user gamechanger   # inside StatsImport/  (org account)
+clasp push                # send local → cloud (use with care; not this phase)
+clasp open-script         # open the cloud project in the editor
+```
+
 ## Security notes
 - Gemini key comes from Script Properties `GEMINI_API_KEY` (never hardcoded).
-- Verified: no `AIza...` keys or inline secret assignments in the exports.
+- Verified: no `AIza...` keys or inline secret assignments in the code.
+- clasp OAuth tokens live in `~/.clasprc.json` (git-ignored, never committed).
 
 ---
 

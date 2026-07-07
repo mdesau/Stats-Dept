@@ -15,7 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- (track day-to-day changes here)
+- Pulled authoritative source code from the Apps Script cloud via `clasp`:
+  - `StatsUpdate/` — AutoUpdate main, MockDraft, MockDraftDialog.html, manifest.
+  - `StatsImport/` — Stats Align Pipeline 6.3 plus dormant legacy versions
+    (`v5.0`, `v4.6`) that exist in the cloud project, and manifest.
+- `.clasp.json` wiring committed for both projects (Script IDs; not secrets).
+
+### Notes
+- Reconciliation confirmed the pulled cloud code is **byte-for-byte identical**
+  to the `_original-exports/` snapshots — no version drift.
+- **Two Google accounts** are in play: `StatsUpdate` is owned by
+  `mdesau@gmail.com`; `StatsImport` is owned by `gamechanger@wcwaabaseball.org`.
+  clasp is configured with a named user (`gamechanger`) to sync StatsImport.
+  Account consolidation is deferred and tracked in `BUGS.md` (BUG-001).
+- **No application code changed.** Live Sheets/scripts untouched.
 
 ## [0.1.0] - 2026-07-07
 ### Added

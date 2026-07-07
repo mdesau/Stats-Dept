@@ -28,36 +28,48 @@ detail stays here.
 
 ---
 
-<!-- Copy the template below for each new bug. Number sequentially. -->
+## BUG-001 · [STATUS: Deferred]
 
-<!--
----
+**Title:** Two Google accounts own the two Apps Script projects (ownership split)
 
-## BUG-001 · [STATUS: Open]
-
-**Title:** Concise one-line description of the bug
-
-**Severity:** Critical | High | Medium | Low
-**Date Reported:** YYYY-MM-DD
-**Release Found:** v0.x.x
-**Release Fixed:** N/A — Open
+**Severity:** Medium
+**Date Reported:** 2026-07-07
+**Release Found:** v0.1.0 (setup)
+**Release Fixed:** N/A — Deferred
 
 ### Observable Problem
-Plain-language description of what the user/developer sees going wrong. No code.
+The two projects are owned by different Google accounts:
+- `StatsUpdate` (AutoUpdate Regs to Stats) → `mdesau@gmail.com`
+- `StatsImport` (Stats Align Pipeline) → `gamechanger@wcwaabaseball.org`
 
-### Steps to Reproduce
-1. Step one
-2. Step two
-3. Expected: [what should happen] — Actual: [what actually happens]
+`clasp` could pull StatsUpdate immediately, but StatsImport returned
+"The caller does not have permission" until a second account login was added.
 
 ### Fix Explanation (Exec Level — No Code)
-Human-readable explanation of the cause and how it was resolved.
+Nothing is broken today. Git versioning is account-agnostic, and clasp supports
+multiple named logins, so both projects sync fine. The real concern is
+**continuity risk**: StatsImport lives under an *organization* email. If access
+to that org account is ever lost, owner control of that script (and its Script
+Properties such as the Gemini API key, plus triggers) would be lost with it.
 
 ### Fix Details (Technical)
-Root cause, what changed, and why. Reference file/function names — no code blocks.
+Workaround in place: `clasp login --user gamechanger` stores a second credential;
+StatsImport is pulled/pushed with `-u gamechanger`. `StatsImport/.clasp.json`
+does not record the user, so clasp commands for that folder must pass
+`--user gamechanger`.
+
+Consolidation options to evaluate later (each touches live production, so it is
+intentionally out of scope for the initial setup):
+1. Transfer ownership of the StatsImport **Sheet** (container-bound script moves
+   with its Sheet). May be blocked by org policy for cross-domain transfers.
+2. "Make a copy" under the target account — creates a **new Script ID** and does
+   **not** carry over Script Properties (API key) or triggers; requires re-setup.
+3. Leave as-is and simply ensure durable access to the org account.
 
 ### Workaround
-Any available workaround, or "None".
--->
+Use clasp named user `gamechanger` for all StatsImport sync operations:
+`clasp pull --user gamechanger` (run inside `StatsImport/`).
 
-_No bugs logged yet._
+---
+
+_No other bugs logged yet._
