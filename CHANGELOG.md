@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+
+## [0.1.3] - 2026-07-08
 ### Added
 - `PRACTICES-AND-PRINCIPLES.md` — repository-wide coding standards (documentation,
   DRY, API verification, security, testability, debugging, SemVer, changelog/bug
@@ -38,6 +40,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (BUG-001).
 - StatsImport: restored all AI calls that were failing with a "model not found for
   API version v1beta" error by targeting a supported Gemini model (BUG-002).
+
+## [0.1.2] - 2026-07-07
+_Tag backfilled retroactively — recorded here for continuity (the tag existed on
+`origin` before the changelog tracked it)._
+### Changed
+- Updated `Instructions-Claude.md` working context for the next session.
+
+## [0.1.1] - 2026-07-07
+_Tag backfilled retroactively — recorded here for continuity (the tag existed on
+`origin` before the changelog tracked it)._
+### Added
+- README "Seasonal Operations Workflow" section and the full `How To Build Draft
+  Stats.docx` procedural guide.
 
 ## [0.1.0] - 2026-07-07
 _First version-controlled release — the migration baseline. **No application
