@@ -9,7 +9,7 @@
 
 - **Repo version:** `0.1.0` (initial development phase, `0.x.x`). Unreleased work
   since the tag warrants a `0.1.1` PATCH bump when next cutting a release.
-- **Last commit:** `ff188b9` — fix: harden AI section profiling and use stable Gemini model (BUG-001, BUG-002).
+- **Last commit:** `350eafc` — fix: harden AI section profiling and use stable Gemini model (BUG-001, BUG-002).
 - **Last release tag:** `v0.1.0`.
 - **Uncommitted work:** none — BUG-001/BUG-002 fixes, their `BUGS.md` entries,
   the CHANGELOG `[Unreleased]` updates, and the new `PRACTICES-AND-PRINCIPLES.md`
