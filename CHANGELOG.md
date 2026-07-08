@@ -21,8 +21,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+### Added
+- `PRACTICES-AND-PRINCIPLES.md` — repository-wide coding standards (documentation,
+  DRY, API verification, security, testability, debugging, SemVer, changelog/bug
+  tracking, and session-handoff protocol) to be followed for all future work.
+
 ### Changed
-- (track day-to-day changes here)
+- **StatsImport pipeline:** switched `CONFIG.AI_MODEL` from the retired dated
+  preview `gemini-2.5-flash-preview-09-2025` to the stable alias
+  `gemini-2.5-flash` (BUG-002).
+
+### Fixed
+- StatsImport: prevented silent stat-column misalignment on the 1-row worded-header
+  path — `generateAISectionProfile()` now validates the AI response is an array of
+  exactly the expected length and halts the import with a clear error otherwise
+  (BUG-001).
+- StatsImport: restored all AI calls that were failing with a "model not found for
+  API version v1beta" error by targeting a supported Gemini model (BUG-002).
 
 ## [0.1.0] - 2026-07-07
 _First version-controlled release — the migration baseline. **No application

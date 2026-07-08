@@ -57,7 +57,7 @@
  */
 const CONFIG = {
   VERSION: "6.3-Batch-Stable",
-  AI_MODEL: "gemini-2.5-flash-preview-09-2025",
+  AI_MODEL: "gemini-2.5-flash",
   COLORS: {
     AI_MATCH: "#d9e9ff",
     SUCCESS_BG: "#fff2cc",
@@ -333,6 +333,11 @@ function callBatchResidualAI(sources, masterOptions) {
  * AI logic that profiles a single row of headers and determines
  * whether each column belongs to Batting, Pitching, Fielding, or General.
  *
+ * The AI output is validated to be an array whose length matches the input
+ * headers exactly. A shorter/longer/reordered array would silently misalign
+ * every downstream column, so on any mismatch we throw and halt the import
+ * rather than append corrupt rows to Raw_Stats.
+ *
  * @param {string[]} headers - Raw header text from the staging sheet.
  * @return {string[]} Array of section-prefixed keys, same length as headers.
  */
@@ -342,7 +347,29 @@ function generateAISectionProfile(headers) {
   Rules: IP/ERA/WHIP define Pitching. AVG/HR/RBI define Batting. PO/A/E define Fielding. Name/Number/Team are General.
   Return JSON array of strings: ["Section_HeaderName", ...] exactly matching the input array length.`;
   const resp = callGemini(prompt, true);
-  return JSON.parse(resp);
+
+  let profile;
+  try {
+    profile = JSON.parse(resp);
+  } catch (e) {
+    throw new Error(
+      "AI section profiling returned invalid JSON; import halted to avoid " +
+        "column misalignment. Raw response: " +
+        resp,
+    );
+  }
+
+  if (!Array.isArray(profile) || profile.length !== headers.length) {
+    const got = Array.isArray(profile)
+      ? profile.length + " entries"
+      : "a non-array value";
+    throw new Error(
+      `AI section profiling returned ${got} but ${headers.length} were ` +
+        "expected; import halted to avoid column misalignment.",
+    );
+  }
+
+  return profile;
 }
 
 /**
