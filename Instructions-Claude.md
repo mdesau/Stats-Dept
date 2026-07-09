@@ -8,7 +8,7 @@
 ## Current State
 
 - **Repo version:** `0.1.5` (initial development phase, `0.x.x`).
-- **Last commit:** `2e4c1d2` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004). *(v0.1.5 release commit hash recorded in the follow-up docs commit.)*
+- **Last commit:** `3bd7efd` — feat: add review-only name-mismatch detection for cleared players (BUG-005).
 - **Last release tag:** `v0.1.5`.
 - **Uncommitted work:** none — cleared-logic name-mismatch **detection** (review-only
   safety net, BUG-005 mitigation, deployed to production and verified),
