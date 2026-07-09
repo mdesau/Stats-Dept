@@ -8,7 +8,7 @@
 ## Current State
 
 - **Repo version:** `0.1.4` (initial development phase, `0.x.x`).
-- **Last commit:** `<this release commit>` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004).
+- **Last commit:** `2e4c1d2` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004).
 - **Last release tag:** `v0.1.4`.
 - **Uncommitted work:** none — division-mapping fix (BUG-003, deployed to
   production and verified), clasp-target correction (BUG-004),
