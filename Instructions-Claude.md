@@ -8,7 +8,7 @@
 ## Current State
 
 - **Repo version:** `1.0.0` — 🎉 **first stable release** (migration phase complete).
-- **Last commit:** `be4c38d` — docs: record v0.1.5 release commit hash *(1.0.0 release commit hash recorded in the follow-up docs commit).*
+- **Last commit:** `e09900b` — release: v1.0.0 — first stable release (migration complete).
 - **Last release tag:** `v1.0.0`.
 - **Uncommitted work:** none — 1.0.0 milestone release (both projects verified
   end-to-end; BUG-005 accepted as resolved via the v0.1.5 review-only detection;
