@@ -7,13 +7,13 @@
 
 ## Current State
 
-- **Repo version:** `0.1.4` (initial development phase, `0.x.x`).
-- **Last commit:** `2e4c1d2` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004).
-- **Last release tag:** `v0.1.4`.
-- **Uncommitted work:** none — division-mapping fix (BUG-003, deployed to
-  production and verified), clasp-target correction (BUG-004),
-  `tests/division-mapping.test.js`, and all doc updates were committed and
-  released as `v0.1.4` this session.
+- **Repo version:** `0.1.5` (initial development phase, `0.x.x`).
+- **Last commit:** `2e4c1d2` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004). *(v0.1.5 release commit hash recorded in the follow-up docs commit.)*
+- **Last release tag:** `v0.1.5`.
+- **Uncommitted work:** none — cleared-logic name-mismatch **detection** (review-only
+  safety net, BUG-005 mitigation, deployed to production and verified),
+  `findPossibleNameMismatches()` helper, `tests/name-mismatch.test.js` (10/10),
+  and all doc updates were committed and released as `v0.1.5` this session.
 - **Tagging policy:** tag every release that contains anything beyond pure doc
   updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
   changes stay under `[Unreleased]` with no tag.
@@ -112,12 +112,17 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
   Renaming touches the cloud project (file identity) so it belongs to the code
   phase, not this migration. When done, update `appsscript.json`/clasp as needed
   and `clasp push` deliberately.
-- [ ] **Review "Cleared (unregistered)" player logic.** In
+- [~] **Review "Cleared (unregistered)" player logic.** In
   `updateStatsFromRegistrations()` (StatsUpdate), audit how players who are no
-  longer in the current Registrations get their draft fields cleared. Possible
-  logic gap in the original implementation — verify the match/clear conditions
-  handle edge cases correctly (e.g. players legitimately absent this season vs.
-  name-match failures being wrongly treated as "unregistered" and cleared).
+  longer in the current Registrations get their draft fields cleared. *Reviewed
+  (this session): confirmed the gap — exact full-name matching wrongly clears a
+  registered player and re-adds a duplicate when the name is spelled differently
+  (BUG-005).* **Mitigation shipped in v0.1.5:** review-only detection
+  (`findPossibleNameMismatches()`) flags cleared↔added same-last-name pairs in the
+  popup/log for human verification — no data is auto-changed. **Deferred root-cause
+  fix** (optional, next phase): normalize the match key (lowercase + collapse
+  whitespace + strip punctuation) on both sides; consider a fuzzy fallback only if
+  normalization proves insufficient (higher collateral-damage risk).
 - [ ] Only after the above: consider actual code changes (a new, separate phase).
 - [ ] **🚀 Major change / Feature (targets `2.0.0`): bulk import from folder.**
   Investigate the ability to implement a "bulk import" feature that ingests
@@ -175,6 +180,7 @@ Two Apps Script projects, one repo, one pipeline:
 | `getDraftBoardContext` | Assembles board context for AI prompts |
 | `handleAiError` | Standardized AI error handling |
 | `getMap` / `shortenDiv` / `isExcludedDiv` | Header + division helpers |
+| `findPossibleNameMismatches` | Review-only: flags cleared↔added same-last-name pairs (BUG-005 detection) |
 | `fuzzyFirstNameMatch` / `levenshteinDistance` | Fuzzy name matching |
 | `logDebug` | Debug logger gated by DEBUG_FLAGS |
 

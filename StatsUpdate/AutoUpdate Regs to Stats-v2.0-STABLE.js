@@ -280,6 +280,7 @@ function updateStatsFromRegistrations() {
   let uniqueUpdated = new Set();         // Players matched and newly updated (were missing data)
   let uniqueCleared = new Set();         // Players removed from registrations
   let newPlayerCount = 0;                // Brand new players added to bottom
+  let newPlayerNames = new Set();        // Full names of brand-new players (for name-mismatch detection)
 
   try {
     // 2) Basic sheet existence validation
@@ -518,6 +519,7 @@ function updateStatsFromRegistrations() {
 
         newRows.push(newRow);
         newPlayerCount++;
+        newPlayerNames.add(name);
       }
     });
 
@@ -583,6 +585,27 @@ function updateStatsFromRegistrations() {
       ? ` [${clearedPlayersList}]` 
       : "";
 
+    // --- Possible name-mismatch detection (review-only; changes no data) ---
+    // A player CLEARED as "unregistered" while a same-last-name player is ADDED
+    // as new is the classic fingerprint of a name mismatch (nickname, typo, or
+    // middle name): the SAME child was likely wrongly cleared and re-added as a
+    // duplicate. We only surface these pairs for a human to eyeball — we never
+    // auto-merge, because two players can legitimately share a last name
+    // (e.g. brothers). See "Cleared (unregistered)" logic review.
+    const possibleMismatches = findPossibleNameMismatches(
+      uniqueCleared,
+      newPlayerNames,
+    );
+    if (DEBUG_FLAGS.NAME_MATCHING && possibleMismatches.length > 0) {
+      logDebug("Name Matching", "POSSIBLE_MISMATCHES", { pairs: possibleMismatches });
+    }
+    const mismatchDetail = possibleMismatches.length > 0
+      ? ` --- ⚠️ Possible Name Mismatches: (${possibleMismatches.length}) [` +
+        possibleMismatches
+          .map((m) => `${m.cleared} ↔ ${m.added.join("/")}`)
+          .join("; ") + "]"
+      : "";
+
     const summaryData =
       `Total Registered Players (draft-eligible): (${totalDraftEligiblePlayers}) --- ` +
       `Excluded (non-draft divisions): (${totalExcludedPlayers}) --- ` +
@@ -590,7 +613,7 @@ function updateStatsFromRegistrations() {
       `Updated (existing): (${uniqueUpdated.size}) --- ` +
       `Cleared (unregistered): (${uniqueCleared.size})${clearedDetail} --- ` +
       `Added (new): (${newPlayerCount}) --- ` +
-      `NOT Updated: (${playersNotUpdated.size})`;
+      `NOT Updated: (${playersNotUpdated.size})${mismatchDetail}`;
 
     logSheet.appendRow([new Date(), "Script", "✅ Success", summaryData]);
 
@@ -618,6 +641,19 @@ function updateStatsFromRegistrations() {
     // Add cleared players list to alert if any were cleared
     if (uniqueCleared.size > 0) {
       alertMessage += "\n\n📋 Cleared Players (no longer in Registration):\n  " + clearedPlayersList;
+    }
+
+    // Flag likely name mismatches for human review (same last name cleared + added)
+    if (possibleMismatches.length > 0) {
+      alertMessage +=
+        "\n\n⚠️ POSSIBLE NAME MISMATCHES — please verify these are NOT the same player:\n" +
+        possibleMismatches
+          .map(
+            (m) =>
+              `  • Cleared "${m.cleared}" but added "${m.added.join('", "')}" (same last name)`,
+          )
+          .join("\n") +
+        "\n  If any pair is the same child, fix the spelling in Registrations and re-run.";
     }
     if (playersNotUpdated.size > 0) {
       alertMessage +=
@@ -1792,6 +1828,50 @@ function getMap(headers) {
     if (h) map[h.toString().toLowerCase().trim()] = i;
   });
   return map;
+}
+
+/**
+ * Flags likely name-mismatches after a sync: players who were CLEARED as
+ * "unregistered" while a DIFFERENTLY-SPELLED player sharing the same last name
+ * was ADDED as brand new. That pattern usually means one real child was wrongly
+ * cleared and then re-added as a duplicate because their name was spelled
+ * differently in Registrations vs Draft_Stats (nickname, typo, or middle name).
+ *
+ * This is REVIEW-ONLY: it never merges or changes any data. It just returns the
+ * suspicious pairs so the caller can surface them for a human to verify. Two
+ * players can legitimately share a last name (e.g. brothers), so the human — not
+ * the script — makes the final call.
+ *
+ * Matching is intentionally simple and conservative: last name = the final
+ * whitespace-delimited token, compared case-insensitively.
+ *
+ * @param {Set<string>|Iterable<string>} clearedNames - Full names cleared this run.
+ * @param {Set<string>|Iterable<string>} addedNames   - Full names added this run.
+ * @return {Array<{cleared: string, added: string[]}>} Suspicious pairs (may be empty).
+ */
+function findPossibleNameMismatches(clearedNames, addedNames) {
+  const lastNameOf = (fullName) => {
+    const parts = String(fullName || "").trim().split(/\s+/);
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "";
+  };
+
+  // Index added players by last name so each cleared player is an O(1) lookup.
+  const addedByLastName = new Map(); // lastName -> [full names]
+  addedNames.forEach((n) => {
+    const ln = lastNameOf(n);
+    if (!ln) return;
+    if (!addedByLastName.has(ln)) addedByLastName.set(ln, []);
+    addedByLastName.get(ln).push(n);
+  });
+
+  const pairs = [];
+  clearedNames.forEach((clearedName) => {
+    const ln = lastNameOf(clearedName);
+    if (ln && addedByLastName.has(ln)) {
+      pairs.push({ cleared: clearedName, added: addedByLastName.get(ln) });
+    }
+  });
+  return pairs;
 }
 
 /**

@@ -22,6 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-08
+### Added
+- StatsUpdate: **possible name-mismatch detection** for the "Cleared
+  (unregistered)" flow. After a sync, any player who was *cleared* while a
+  different-spelled player sharing the same last name was *added* as new is
+  surfaced as a **⚠️ review-only warning** in both the popup alert and the
+  Automation Log row (and to debug logs when `NAME_MATCHING` is on). This is the
+  classic fingerprint of one real child being wrongly cleared and re-added as a
+  duplicate (nickname / typo / middle name). It **never merges or changes data** —
+  the human verifies. Partially mitigates BUG-005.
+- New pure helper `findPossibleNameMismatches()` (extracted for testability) and
+  `tests/name-mismatch.test.js` — committed Node `vm` harness, 10/10 checks
+  (Plunkett case, true negatives, case-insensitivity, multi-added grouping,
+  single-token names, multi-word surnames, whitespace).
+
 ## [0.1.4] - 2026-07-08
 ### Added
 - `tests/division-mapping.test.js` — committed Node verification test (runs the

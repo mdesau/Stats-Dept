@@ -260,3 +260,73 @@ ownership (both projects are under gamechanger) was corrected.
 ### Workaround
 None needed post-fix. (The orphan `12Auuw3…` copy remains and can be ignored or
 deleted; it is not referenced by any sheet.)
+
+---
+
+## BUG-005 · [STATUS: In Progress]
+
+**Title:** Name-spelling differences silently clear a registered player and re-add them as a duplicate
+
+**Severity:** Medium
+**Date Reported:** 2026-07-08
+**Release Found:** v0.1.0 (pre-existing in the original implementation)
+**Release Fixed:** N/A — mitigation (detection) shipped in v0.1.5; root-cause fix deferred by design
+
+### Observable Problem
+A player who is genuinely registered can be reported as **"Cleared
+(unregistered)"** and simultaneously **"Added (new)"** in the same run, leaving a
+duplicate row in `Draft_Stats` and wiping the automated fields (birth date, draft,
+challenge, special request) on their original row. Happens when the child's name
+is spelled differently between `Registrations` and `Draft_Stats`.
+
+### Steps to Reproduce
+1. Have a player in `Draft_Stats` as e.g. "Rhys Plunkett" and in `Registrations`
+   as "Patrick Plunkett" (nickname / typo / middle name — same child).
+2. Run GameChanger → Update Draft Stats.
+3. Expected: the player is recognized and updated in place — Actual: the
+   `Draft_Stats` name doesn't exactly match Registrations, so the player is
+   treated as unregistered (cleared) AND as brand new (a second row is appended).
+
+### Fix Explanation (Exec Level — No Code)
+The sync matches players between the two sheets by their **exact** full name. Any
+spelling difference (nickname, typo, extra space, middle name) makes the same
+child look like two different people: the sheet copy looks "gone" (so it's
+cleared) and the registration copy looks "new" (so it's added). This is a
+long-standing gap in the original logic. Rather than let a computer guess that two
+differently-spelled names are the same child (which risks merging genuinely
+different kids — e.g. two brothers), we added a **review-only safety net**: after
+each run the tool flags any pair where a *cleared* player and an *added* player
+share a last name, and asks a human to confirm. Nothing is changed automatically —
+the person decides and, if needed, fixes the spelling in Registrations and re-runs.
+A deeper automatic fix (name normalization) is deferred until real-world use shows
+it's warranted.
+
+### Fix Details (Technical)
+Root cause: `updateStatsFromRegistrations()` keys both the registrations map and
+the `Draft_Stats` walk on `` `${first} ${last}`.trim() `` and matches with strict
+`===` / `Map.has()` — no case/whitespace/punctuation normalization and no fuzzy
+fallback in this path (the existing `fuzzyFirstNameMatch()`/`levenshteinDistance()`
+helpers are only used later, in `updateEvalsFromDraftStats`). A false clear
+(Pass 1) and a duplicate append (Pass 2) result.
+
+Mitigation shipped in v0.1.5 (review-only, zero data change):
+- Added `newPlayerNames` Set to capture full names of appended players.
+- New pure helper `findPossibleNameMismatches(clearedNames, addedNames)` returns
+  cleared↔added pairs sharing a last name (final token, case-insensitive).
+- Wired into the summary: pairs are surfaced in the popup alert
+  ("⚠️ POSSIBLE NAME MISMATCHES — verify these are NOT the same player"), the
+  Automation Log row, and debug logs (`NAME_MATCHING`).
+- Verified by committed Node `vm` harness `tests/name-mismatch.test.js` (10/10),
+  including a true-negative check that different last names are NOT flagged.
+
+Deferred root-cause options (not yet implemented; see roadmap): (a) normalize the
+match key (lowercase + collapse whitespace + strip punctuation) on both sides;
+(b) fuzzy fallback before clearing (higher collateral-damage risk — could merge
+different people). Status stays **In Progress** because the underlying exact-match
+gap remains; only detection is in place.
+
+### Workaround
+When the tool flags a possible mismatch, verify the pair. If it's the same child,
+correct the spelling in `Registrations` to match `Draft_Stats` (or vice-versa) and
+re-run — the original row's data is recoverable because only the four automated
+fields are cleared, not stats history.
