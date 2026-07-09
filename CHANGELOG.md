@@ -22,6 +22,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-07-08
+### Added
+- `tests/division-mapping.test.js` — committed Node verification test (runs the
+  real `shortenDiv`/`isExcludedDiv` via a `vm` sandbox) covering the 2026
+  division names, historical spellings, and edge cases.
+
+### Fixed
+- StatsUpdate: division-name renames no longer break the Draft column. Draft
+  labels now abbreviate correctly (IMP/AMP/Minors/Majors) and Rookie is excluded,
+  via robust keyword matching that survives seasonal program renames (BUG-003).
+- StatsUpdate: corrected the clasp target so pushes reach the production script
+  bound to Draft_Stats instead of an orphan copy (BUG-004).
+
+### Changed
+- `StatsUpdate/.clasp.json` now points at the production script
+  (`1HyMi6t…`, gamechanger) rather than the orphan copy (`12Auuw3…`, mdesau).
+
 ## [0.1.3] - 2026-07-08
 ### Added
 - `PRACTICES-AND-PRINCIPLES.md` — repository-wide coding standards (documentation,

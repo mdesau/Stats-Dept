@@ -76,8 +76,9 @@
  * 3. Append new players found only in Registrations (not in excluded divisions)
  *
  * EXCLUDED DIVISIONS:
- * Players in these divisions are cleared from the draft board:
- * - Rookie (Coach Pitch), Tee Ball, Evaluation, Junior
+ * Players in these divisions are cleared from the draft board (matched by
+ * keyword, see EXCLUDED_DIV_KEYWORDS):
+ * - Rookie / Coach Pitch, Tee Ball, Evaluation, Junior
  *
  * COUNTING METHODOLOGY:
  * - Unique players only: Multiple rows per player (multi-season history) count as ONE player
@@ -113,11 +114,60 @@ const API_KEY = PropertiesService.getScriptProperties().getProperty("GEMINI_API_
 const LOG_SHEET_NAME = "Automation Log";
 
 /**
- * Division name fragments that should be excluded from the draft board.
- * Players in these divisions will have their draft-related fields cleared.
+ * DIVISION MAPPING CONFIGURATION
+ * ----------------------------------------------------------------------------
+ * WHY THIS EXISTS: The league renames its programs almost every registration
+ * season. Past "Division Name" values have looked like "IMP Machine Pitch",
+ * then "Intermediate Machine Pitch - Little League Baseball"; "Majors" became
+ * "Major - Little League Baseball"; "Rookie (Coach Pitch)" became
+ * "Rookie - Coach Pitch - Little League Baseball". Matching the WHOLE literal
+ * string (the old approach) broke every time the wording changed.
+ *
+ * THE ROBUST APPROACH — KEYWORD MATCHING: We match on the single STABLE word
+ * that survives the renames (e.g. "Intermediate", "Major") rather than the
+ * full string. As long as that keyword still appears anywhere in the division
+ * name (case-insensitive), the mapping keeps working with zero code edits —
+ * regardless of added suffixes, pluralization, or dash-vs-parenthesis changes.
+ *
+ * HOW TO UPDATE EACH SEASON (usually you do nothing):
+ *   1. Open the Registrations tab and read the exact "Division Name" values.
+ *   2. Confirm each draft division still CONTAINS its `keyword` below, and each
+ *      non-draft division still contains one of the EXCLUDED keywords.
+ *   3. Only if the league changes the actual WORDING (not just formatting) so a
+ *      keyword no longer appears, edit that one `keyword` string here.
+ *
+ * ORDER MATTERS: DIVISION_RULES are evaluated top-to-bottom and the FIRST
+ * keyword found in the name wins. Keep more-specific rules above broader ones.
  */
-const EXCLUDED_DIV_PATTERNS = [
-  "Rookie (Coach Pitch)",
+
+/**
+ * Ordered keyword → draft-label rules. For each rule, if ANY of its `keywords`
+ * appears (case-insensitively) in the division name, that rule's `label` is
+ * written to the Draft_Stats "Draft" column. Rules are evaluated top-to-bottom
+ * and the first matching rule wins. Labels must match the values the downstream
+ * Mock Draft expects: "IMP", "AMP", "Minors", "Majors".
+ *
+ * Each rule lists every spelling the league has used so both current and past
+ * season names map correctly. To support a new wording, add a keyword — you do
+ * not need to remove the old ones. Keep keywords distinctive to avoid a keyword
+ * from one division accidentally appearing inside another division's name.
+ */
+const DIVISION_RULES = [
+  { keywords: ["Intermediate", "IMP"], label: "IMP" },    // "Intermediate Machine Pitch" / older "IMP Machine Pitch"
+  { keywords: ["Advanced", "AMP"], label: "AMP" },        // "Advanced Machine Pitch" / older "AMP Machine Pitch"
+  { keywords: ["Major"], label: "Majors" },               // "Major - Little League Baseball" / older "Majors"
+  { keywords: ["Minor"], label: "Minors" },               // "Minor - Player Pitch"
+];
+
+/**
+ * Keywords that mark a division as NON-draft (excluded). Any division name
+ * containing one of these (case-insensitive) has its draft-related fields
+ * cleared, and new players in it are never appended to Draft_Stats.
+ * "Rookie" is intentionally broad so it catches every seasonal spelling
+ * ("Rookie (Coach Pitch)", "Rookie - Coach Pitch - Little League Baseball").
+ */
+const EXCLUDED_DIV_KEYWORDS = [
+  "Rookie",
   "Tee Ball",
   "Evaluation",
   "Junior",
@@ -1745,34 +1795,48 @@ function getMap(headers) {
 }
 
 /**
- * Converts verbose division names into shorter draft labels.
+ * Converts a verbose division/program name into its short draft label.
  *
- * @param {string|any} n - Raw division name value.
- * @return {string} Shortened division label.
+ * Uses keyword matching (see DIVISION_RULES) so it survives seasonal renames:
+ * it looks for the first stable keyword contained in the name rather than
+ * matching the full literal string. Falls back to a cleaned-up first token for
+ * any unrecognized division so nothing is silently dropped.
+ *
+ * @param {string|any} n - Raw division name value from Registrations.
+ * @return {string} Shortened division label (e.g. "IMP", "Majors").
  */
 function shortenDiv(n) {
   if (!n) return "";
   const div = n.toString();
+  const lower = div.toLowerCase();
 
-  if (div.includes("IMP Machine Pitch")) return "IMP";
-  if (div.includes("AMP Machine Pitch")) return "AMP";
-  if (div.includes("Majors")) return "Majors";
-  if (div.includes("Minor - Player Pitch")) return "Minors";
+  for (const rule of DIVISION_RULES) {
+    if (rule.keywords.some((kw) => lower.includes(kw.toLowerCase()))) {
+      return rule.label;
+    }
+  }
 
-  return div.split(/[-/]/)[0].replace("Little League Baseball", "").trim();
+  // Fallback for an unrecognized division: take the text before the first
+  // "-" or "/", strip the boilerplate suffix, and trim. Better to surface a
+  // readable value than an empty cell if the league adds a brand-new division.
+  return div.split(/[-/]/)[0].replace(/Little League Baseball/i, "").trim();
 }
 
 /**
  * Returns true if a division name belongs to a non-draft (excluded) group.
+ *
+ * Uses case-insensitive keyword matching (see EXCLUDED_DIV_KEYWORDS) so it is
+ * robust to seasonal formatting changes such as
+ * "Rookie (Coach Pitch)" vs "Rookie - Coach Pitch - Little League Baseball".
  *
  * @param {string|any} divName - Division name from Registrations.
  * @return {boolean} Whether the division is excluded from the draft.
  */
 function isExcludedDiv(divName) {
   if (!divName) return false;
-  const dn = divName.toString();
+  const lower = divName.toString().toLowerCase();
 
-  return EXCLUDED_DIV_PATTERNS.some((pattern) => dn.includes(pattern));
+  return EXCLUDED_DIV_KEYWORDS.some((kw) => lower.includes(kw.toLowerCase()));
 }
 
 /**

@@ -157,3 +157,106 @@ single constant governs both `generateAISectionProfile` and `callBatchResidualAI
 None in-code. Prior to the fix the only mitigation was to avoid any AI-dependent
 path (i.e. only import clean 2-row sectional layouts with no residual/unknown
 stats), which is impractical for real coach CSVs.
+
+---
+
+## BUG-003 · [STATUS: RV]
+
+**Title:** Division-name renames silently broke draft-label abbreviation and Rookie exclusion
+
+**Severity:** High
+**Date Reported:** 2026-07-08
+**Release Found:** v0.1.3
+**Release Fixed:** v0.1.4 (deployed to production 2026-07-08)
+
+### Observable Problem
+When running **Update Draft Stats** for the Fall 2026 draft, the `Draft` column
+in `Draft_Stats` was populated but **not abbreviated** for several divisions:
+`Intermediate Machine Pitch…` stayed verbose instead of `IMP`, `Advanced Machine
+Pitch…` instead of `AMP`, and `Major - Little League Baseball` produced `Major`
+instead of `Majors`. Separately, **Rookie** players (a non-draft division) were
+**not excluded** — they were written to the draft board as `Rookie`.
+
+### Steps to Reproduce
+1. Have Registrations use the 2026 program names (e.g. "Intermediate Machine
+   Pitch - Little League Baseball", "Major - Little League Baseball",
+   "Rookie - Coach Pitch - Little League Baseball").
+2. Run GameChanger → Update Draft Stats.
+3. Expected: Draft column shows IMP/AMP/Minors/Majors and Rookie is excluded —
+   Actual: IMP/AMP not abbreviated, Majors shown as "Major", Rookie included.
+
+### Fix Explanation (Exec Level — No Code)
+The league renames its programs almost every season. The old code matched the
+**entire** program name against last season's exact spelling, so any wording
+change (e.g. "IMP" → "Intermediate", "Majors" → "Major", "(Coach Pitch)" →
+"- Coach Pitch") silently stopped matching. The fix switches to **keyword
+matching**: the code now looks for one stable word (like "Intermediate" or
+"Major") anywhere in the name, so it keeps working across seasonal renames with
+no code changes. The recognized keywords live in a small, clearly documented
+configuration block at the top of the file for easy future updates.
+
+### Fix Details (Technical)
+In `AutoUpdate Regs to Stats-v2.0-STABLE.js`: replaced the literal
+`EXCLUDED_DIV_PATTERNS` constant with two config tables — `DIVISION_RULES`
+(ordered `{ keywords[], label }` rules) and `EXCLUDED_DIV_KEYWORDS`. Rewrote
+`shortenDiv()` to return the first rule whose any-keyword matches
+(case-insensitive), with the original first-token cleanup kept as a fallback for
+unrecognized divisions. Rewrote `isExcludedDiv()` to do case-insensitive keyword
+matching. Each rule carries multiple keywords so current and historical spellings
+both map (e.g. `["Intermediate","IMP"] → "IMP"`). Verified by a committed Node
+`vm` harness, `tests/division-mapping.test.js`, that loads the real source with
+stubbed Apps Script globals and asserts all 7 of the 2026 names plus older
+spellings and edge cases (30/30 checks passing). Deployed to the production
+StatsUpdate script and confirmed working via a live Update Draft Stats run.
+
+### Workaround
+Before the fix: manually correct the Draft column after each sync and manually
+delete Rookie rows. No longer needed.
+
+---
+
+## BUG-004 · [STATUS: RV]
+
+**Title:** StatsUpdate clasp target pointed at an orphan copy, not the production script
+
+**Severity:** High
+**Date Reported:** 2026-07-08
+**Release Found:** v0.1.0 (migration setup)
+**Release Fixed:** v0.1.4 (2026-07-08)
+
+### Observable Problem
+After pushing the BUG-003 fix with `clasp push`, the live Apps Script editor
+still showed the old code (different line count). Code changes appeared to have
+"not taken", even though clasp reported a successful push.
+
+### Steps to Reproduce
+1. Edit `StatsUpdate/AutoUpdate Regs to Stats-v2.0-STABLE.js` locally.
+2. `clasp push` from `StatsUpdate/`.
+3. Expected: the production script bound to the Draft_Stats sheet updates —
+   Actual: production is unchanged; the edit lands in a different (orphan) script.
+
+### Fix Explanation (Exec Level — No Code)
+The project's clasp configuration was wired to the wrong Google Apps Script
+project — a standalone **copy** owned by a personal account — rather than the
+real production script (owned by the org `gamechanger` account) that the
+Draft_Stats spreadsheet actually runs. Pushes therefore updated a dead copy. We
+re-pointed the configuration to the production script, re-authenticated the org
+account, and verified production had not diverged from our baseline before
+pushing the real fix. Our internal notes had the two projects' account ownership
+reversed, which is what caused the mistake; the notes were corrected.
+
+### Fix Details (Technical)
+`StatsUpdate/.clasp.json` `scriptId` was changed from
+`12Auuw3BrMikiCSzT8moRnZ_33SEcgiczhjZm-v47rfglqKsyw80eYqAR` (orphan copy, mdesau)
+to `1HyMi6t_CogB2613MDkRgll2s0NuoGLc-a7aIvYQ_6ZeFrsK6eI7YSezF` (production, bound
+to Draft_Stats, owned by gamechanger). The `gamechanger` clasp token had expired
+(`invalid_grant / invalid_rapt`) and was refreshed via `clasp login --user
+gamechanger`. Before pushing, production was pulled to a temp dir and diffed:
+3 of 4 files were byte-identical to local and AutoUpdate was byte-identical to
+our pre-edit git baseline, confirming no production-only drift. `StatsUpdate`
+pushes now require `--user gamechanger`. `Instructions-Claude.md` account
+ownership (both projects are under gamechanger) was corrected.
+
+### Workaround
+None needed post-fix. (The orphan `12Auuw3…` copy remains and can be ignored or
+deleted; it is not referenced by any sheet.)

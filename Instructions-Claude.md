@@ -7,12 +7,16 @@
 
 ## Current State
 
-- **Repo version:** `0.1.3` (initial development phase, `0.x.x`).
-- **Last commit:** `350eafc` — fix: harden AI section profiling and use stable Gemini model (BUG-001, BUG-002).
-- **Last release tag:** `v0.1.3`.
-- **Uncommitted work:** none — BUG-001/BUG-002 fixes, their `BUGS.md` entries,
-  the CHANGELOG `[Unreleased]` updates, and the new `PRACTICES-AND-PRINCIPLES.md`
-  were committed this session.
+- **Repo version:** `0.1.4` (initial development phase, `0.x.x`).
+- **Last commit:** `<this release commit>` — fix: robust division mapping + correct StatsUpdate clasp target (BUG-003, BUG-004).
+- **Last release tag:** `v0.1.4`.
+- **Uncommitted work:** none — division-mapping fix (BUG-003, deployed to
+  production and verified), clasp-target correction (BUG-004),
+  `tests/division-mapping.test.js`, and all doc updates were committed and
+  released as `v0.1.4` this session.
+- **Tagging policy:** tag every release that contains anything beyond pure doc
+  updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
+  changes stay under `[Unreleased]` with no tag.
 - **Standards:** `PRACTICES-AND-PRINCIPLES.md` is now the source of truth for how
   we author/document/version/hand off code. Read it alongside this file.
 - **Code status:** Authoritative `.gs`/`.js` code pulled from the Apps Script
@@ -24,18 +28,27 @@
 - **Next phase priority:** Code quality assessment (see "Active Task" below)
 
 ### Accounts (IMPORTANT)
-Two Google accounts own the two projects:
-- `StatsUpdate` → **mdesau@gmail.com** (clasp default user)
-- `StatsImport` → **gamechanger@wcwaabaseball.org** (clasp named user `gamechanger`)
+Both **production** projects are owned/accessed via the org account
+**gamechanger@wcwaabaseball.org** (clasp named user `gamechanger`). An earlier
+version of these notes wrongly listed StatsUpdate under `mdesau@gmail.com`; that
+was an **orphan copy** (`12Auuw3…`), not the live script — see BUG-004.
 
-Sync commands:
+- `StatsUpdate` (prod `1HyMi6t…`) → **gamechanger@wcwaabaseball.org**
+- `StatsImport` (prod)            → **gamechanger@wcwaabaseball.org**
+
+> `mdesau@gmail.com` remains the clasp **default** user and still owns the
+> unused orphan StatsUpdate copy `12Auuw3…` (safe to ignore/delete).
+
+Sync commands — **both** projects require the named user:
 ```bash
-# StatsUpdate (default account)
-cd StatsUpdate && clasp pull
+# StatsUpdate (production, org account)
+cd StatsUpdate && clasp pull --user gamechanger
 
-# StatsImport (org account) — MUST pass the named user
+# StatsImport (org account)
 cd StatsImport && clasp pull --user gamechanger
 ```
+If a push/pull fails with `invalid_grant` / `invalid_rapt`, the token expired —
+re-run `clasp login --user gamechanger`.
 ---
 
 ## Active Task (Priority)
@@ -99,6 +112,12 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
   Renaming touches the cloud project (file identity) so it belongs to the code
   phase, not this migration. When done, update `appsscript.json`/clasp as needed
   and `clasp push` deliberately.
+- [ ] **Review "Cleared (unregistered)" player logic.** In
+  `updateStatsFromRegistrations()` (StatsUpdate), audit how players who are no
+  longer in the current Registrations get their draft fields cleared. Possible
+  logic gap in the original implementation — verify the match/clear conditions
+  handle edge cases correctly (e.g. players legitimately absent this season vs.
+  name-match failures being wrongly treated as "unregistered" and cleared).
 - [ ] Only after the above: consider actual code changes (a new, separate phase).
 - [ ] **🚀 Major change / Feature (targets `2.0.0`): bulk import from folder.**
   Investigate the ability to implement a "bulk import" feature that ingests
@@ -115,7 +134,7 @@ Two Apps Script projects, one repo, one pipeline:
 | Folder | Project | Internal Ver | Owner account | Role |
 |--------|---------|--------------|---------------|------|
 | `StatsImport/` | Stats Align Pipeline | 6.3 | gamechanger@wcwaabaseball.org | Normalize coach CSVs → `Raw_Stats` |
-| `StatsUpdate/` | AutoUpdate Regs to Stats (+ Mock Draft) | 2.4 | mdesau@gmail.com | Sync → `Draft_Stats`; AI tools |
+| `StatsUpdate/` | AutoUpdate Regs to Stats (+ Mock Draft) | 2.4 | gamechanger@wcwaabaseball.org | Sync → `Draft_Stats`; AI tools |
 
 `StatsImport/` also contains dormant legacy files pulled from the cloud project:
 `StatsAlignPipeline-v5.0-Stable.js` and `StatsAlignPipeline-v4.6-Stable.js`
@@ -174,9 +193,10 @@ Two Apps Script projects, one repo, one pipeline:
 ## clasp quick reference
 ```bash
 export PATH="/opt/homebrew/bin:$PATH"   # node/clasp live under Homebrew
-clasp pull                # inside StatsUpdate/  (mdesau@gmail.com, default)
+clasp pull --user gamechanger   # inside StatsUpdate/  (production 1HyMi6t…, org account)
 clasp pull --user gamechanger   # inside StatsImport/  (org account)
-clasp push                # send local → cloud (use with care; not this phase)
+clasp push --user gamechanger   # send local → cloud (deliberate; org account)
+clasp login --user gamechanger  # refresh token if invalid_grant / invalid_rapt
 clasp open-script         # open the cloud project in the editor
 ```
 
