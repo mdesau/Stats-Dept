@@ -95,7 +95,7 @@ stops immediately with a plain-language error instead of writing scrambled stats
 Failing loudly protects the master `Raw_Stats` table from silent corruption.
 
 ### Fix Details (Technical)
-In `StatsAlignPipeline-6.3-Stable.js`, `generateAISectionProfile()` now wraps
+In `StatsImport-and-Align.js`, `generateAISectionProfile()` now wraps
 `JSON.parse` in a guarded block and asserts `Array.isArray(profile) &&
 profile.length === headers.length`. Any parse failure or length/type mismatch
 throws a descriptive `Error`, which is caught by `aggregateAndAlignStats()`'s
@@ -146,7 +146,7 @@ same model family, which Google maintains for production use and does not expire
 on a date schedule. No behavior or prompt logic changed — only the model target.
 
 ### Fix Details (Technical)
-In `StatsAlignPipeline-6.3-Stable.js`, `CONFIG.AI_MODEL` was changed from
+In `StatsImport-and-Align.js`, `CONFIG.AI_MODEL` was changed from
 `"gemini-2.5-flash-preview-09-2025"` to the stable alias `"gemini-2.5-flash"`.
 Availability was confirmed against the live account key via the ListModels
 endpoint (`GET /v1beta/models`), which returned `models/gemini-2.5-flash` among
@@ -196,7 +196,7 @@ no code changes. The recognized keywords live in a small, clearly documented
 configuration block at the top of the file for easy future updates.
 
 ### Fix Details (Technical)
-In `AutoUpdate Regs to Stats-v2.0-STABLE.js`: replaced the literal
+In `StatsUpdate.js`: replaced the literal
 `EXCLUDED_DIV_PATTERNS` constant with two config tables — `DIVISION_RULES`
 (ordered `{ keywords[], label }` rules) and `EXCLUDED_DIV_KEYWORDS`. Rewrote
 `shortenDiv()` to return the first rule whose any-keyword matches
@@ -230,7 +230,7 @@ still showed the old code (different line count). Code changes appeared to have
 "not taken", even though clasp reported a successful push.
 
 ### Steps to Reproduce
-1. Edit `StatsUpdate/AutoUpdate Regs to Stats-v2.0-STABLE.js` locally.
+1. Edit `StatsUpdate/StatsUpdate.js` locally.
 2. `clasp push` from `StatsUpdate/`.
 3. Expected: the production script bound to the Draft_Stats sheet updates —
    Actual: production is unchanged; the edit lands in a different (orphan) script.

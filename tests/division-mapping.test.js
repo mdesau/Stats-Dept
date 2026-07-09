@@ -38,7 +38,7 @@ const SOURCE = path.join(
   __dirname,
   "..",
   "StatsUpdate",
-  "AutoUpdate Regs to Stats-v2.0-STABLE.js",
+  "StatsUpdate.js",
 );
 
 function loadFunctions() {

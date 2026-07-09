@@ -57,7 +57,7 @@ re-run `clasp login --user gamechanger`.
 
 The migration gate is **DONE** — `v1.0.0` shipped on 2026-07-09 with both projects
 verified end-to-end in the clasp workflow. Next up is the first item on the
-post-1.0.0 roadmap: a deep-dive on `StatsImport/StatsAlignPipeline-6.3-Stable.js`
+post-1.0.0 roadmap: a deep-dive on `StatsImport/StatsImport-and-Align.js`
 against `PRACTICES-AND-PRINCIPLES.md` to decide whether a refactor/optimization is
 warranted.
 
@@ -68,7 +68,7 @@ warranted.
   StatsImport has not yet had a standards pass.
 
 **Approach:**
-1. Read `StatsAlignPipeline-6.3-Stable.js` against the practices doc.
+1. Read `StatsImport-and-Align.js` against the practices doc.
 2. Log any defects in `BUGS.md`; capture improvement ideas as roadmap items.
 3. Propose (don't auto-apply) a refactor plan; discuss tradeoffs before changing code.
 
@@ -88,7 +88,7 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
   `v1.0.0`, 2026-07-09).** Both projects confirmed working end-to-end; this gate
   ended the migration phase and cut the first stable release.
 - [ ] **⭐ Code assessment: StatsImport (NEXT PRIORITY).** Deep-dive on
-  `StatsAlignPipeline-6.3-Stable.js` against `PRACTICES-AND-PRINCIPLES.md`.
+  `StatsImport-and-Align.js` against `PRACTICES-AND-PRINCIPLES.md`.
   Determine if refactor/optimization is warranted. *See "Active Task" above.*
 - [ ] **Account consolidation (decide + execute).** The two projects are owned by
   different Google accounts (`mdesau@gmail.com` vs `gamechanger@wcwaabaseball.org`).
@@ -104,12 +104,10 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
 - [x] **Reconcile legacy in-file changelogs** into the single `CHANGELOG.md`
   (done — preserved verbatim in the "Pre-migration project history" section;
   keep it tidy as new changes land under `[Unreleased]`).
-- [ ] **Rename script files to drop stale version labels.** Filenames still
-  carry old per-project versions (e.g. `AutoUpdate Regs to Stats-v2.0-STABLE.js`,
-  `StatsAlignPipeline-6.3-Stable.js`) that no longer match repo-level SemVer.
-  Renaming touches the cloud project (file identity) so it belongs to the code
-  phase, not this migration. When done, update `appsscript.json`/clasp as needed
-  and `clasp push` deliberately.
+- [x] **Rename script files to drop stale version labels.** Done 2026-07-09:
+  `StatsUpdate/StatsUpdate.js` and `StatsImport/StatsImport-and-Align.js` are now
+  the active file names, and the deprecated `v4.6` / `v5.0` StatsImport files
+  were removed so the cloud project mirrors the simplified repo layout.
 - [x] **Review "Cleared (unregistered)" player logic.** In
   `updateStatsFromRegistrations()` (StatsUpdate), audit how players who are no
   longer in the current Registrations get their draft fields cleared. *Reviewed
@@ -139,9 +137,8 @@ Two Apps Script projects, one repo, one pipeline:
 | `StatsImport/` | Stats Align Pipeline | 6.3 | gamechanger@wcwaabaseball.org | Normalize coach CSVs → `Raw_Stats` |
 | `StatsUpdate/` | AutoUpdate Regs to Stats (+ Mock Draft) | 2.4 | gamechanger@wcwaabaseball.org | Sync → `Draft_Stats`; AI tools |
 
-`StatsImport/` also contains dormant legacy files pulled from the cloud project:
-`StatsAlignPipeline-v5.0-Stable.js` and `StatsAlignPipeline-v4.6-Stable.js`
-(kept as-is; the active version is 6.3).
+`StatsImport/` now keeps only the active import pipeline source file plus the
+manifest/config needed for clasp sync.
 
 ### Data dependencies (one-line flow)
 `Coach CSVs → StatsImport(aggregateAndAlignStats) → Raw_Stats → StatsUpdate(updateStatsFromRegistrations) → Draft_Stats → AI Scout / Mock Draft / Evals`
@@ -150,7 +147,7 @@ Two Apps Script projects, one repo, one pipeline:
 
 ## Function Map
 
-### StatsImport — Stats Align Pipeline (`StatsAlignPipeline-6.3-Stable`)
+### StatsImport — Stats Align Pipeline (`StatsImport-and-Align`)
 | Function | What it does |
 |----------|--------------|
 | `onOpen` | Builds the "GC Automation" Sheets menu |
@@ -164,7 +161,7 @@ Two Apps Script projects, one repo, one pipeline:
 | `callGemini` | Low-level Gemini API wrapper (JSON or text) |
 | `openLogsSheet` | Opens the Automation_Logs sheet |
 
-### StatsUpdate — AutoUpdate Regs to Stats (`AutoUpdate Regs to Stats`)
+### StatsUpdate — AutoUpdate Regs to Stats (`StatsUpdate`)
 | Function | What it does |
 |----------|--------------|
 | `onOpen` | Builds the Sheets automation menu |
