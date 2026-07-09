@@ -8,20 +8,22 @@
 ## Current State
 
 - **Repo version:** `1.0.0` — 🎉 **first stable release** (migration phase complete).
-- **Last commit:** `e09900b` — release: v1.0.0 — first stable release (migration complete).
+- **Last commit:** `bb100d9` — refactor: simplify Apps Script filenames.
 - **Last release tag:** `v1.0.0`.
-- **Uncommitted work:** none — 1.0.0 milestone release (both projects verified
-  end-to-end; BUG-005 accepted as resolved via the v0.1.5 review-only detection;
-  README badge → 1.0.0, CHANGELOG `[1.0.0]`, docs updated) committed and tagged
-  `v1.0.0` this session.
+- **Uncommitted work:** none — active Apps Script files were renamed to
+  `StatsUpdate.js` and `StatsImport-and-Align.js`; deprecated StatsImport `v4.6`
+  / `v5.0` files were removed locally, from GitHub-tracked source, and from the
+  cloud project via clasp.
 - **Tagging policy:** tag every release that contains anything beyond pure doc
   updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
   changes stay under `[Unreleased]` with no tag.
 - **Standards:** `PRACTICES-AND-PRINCIPLES.md` is now the source of truth for how
   we author/document/version/hand off code. Read it alongside this file.
-- **Code status:** Authoritative `.gs`/`.js` code pulled from the Apps Script
-  cloud via clasp into `StatsUpdate/` and `StatsImport/`. Verified byte-for-byte
-  identical to `_original-exports/`.
+- **Code status:** Authoritative Apps Script source is now tracked under the
+  simplified active filenames `StatsUpdate/StatsUpdate.js` and
+  `StatsImport/StatsImport-and-Align.js`. Deprecated StatsImport legacy files
+  were removed from the tracked project and cloud script so local, GitHub, and
+  Apps Script now share the same lean file set.
 - **Documentation status:** 
   - README.md updated with "Seasonal Operations Workflow" section (concise SOP)
   - `How To Build Draft Stats.docx` committed (full procedural guide with screenshots)
