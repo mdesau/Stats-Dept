@@ -1,6 +1,6 @@
 # Stats-Dept
 
-![version](https://img.shields.io/badge/version-0.1.0-blue)
+![version](https://img.shields.io/badge/version-1.0.0-blue)
 
 Version-controlled home for the **WCWAA Stats Department** youth-baseball
 automation tools. These are [Google Apps Script](https://developers.google.com/apps-script)
@@ -157,10 +157,12 @@ clasp login
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
-and is currently in the **initial development phase (`0.x.x`)** — things may still
-change. See [`CHANGELOG.md`](./CHANGELOG.md) for the release history and
+and reached its **first stable release (`1.0.0`)** on 2026-07-09 — both Apps Script
+projects are verified and tested stable in their Git/clasp home. See
+[`CHANGELOG.md`](./CHANGELOG.md) for the release history and
 [`BUGS.md`](./BUGS.md) for the bug tracker.
 
-- Releases are git-tagged (`v0.1.0`, `v0.2.0`, …).
+- Releases are git-tagged (`v0.1.0`, …, `v1.0.0`).
 - Day-to-day changes are logged under `[Unreleased]` in the changelog.
-- We move to `1.0.0` when the pipeline is tested, stable, and production-ready.
+- From `1.0.0` onward we follow strict SemVer: breaking changes bump MAJOR,
+  backwards-compatible features bump MINOR, fixes bump PATCH.

@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > contains two Apps Script projects:
 > **StatsUpdate** (AutoUpdate Regs to Stats) and **StatsImport** (Stats Align Pipeline).
 >
-> **Phase:** The project is in the initial-development / **migration** phase
-> (`0.x.x`). "Migration" = moving already-working cloud scripts into Git/GitHub +
-> clasp. We will **not** cut `1.0.0` until every project is verified and tested
-> stable in its new home. Repo-level releases are numbered `0.x.x` and tagged.
+> **Phase:** The migration phase is **complete**. "Migration" = moving
+> already-working cloud scripts into Git/GitHub + clasp. The first stable release
+> **`1.0.0`** was cut on 2026-07-09 once every project was verified and tested
+> stable in its new home. From `1.0.0` onward the repo follows strict SemVer.
 >
 > The **Pre-migration project history** section near the bottom preserves each
 > script's original in-file change log verbatim (those version numbers — 2.x and
@@ -21,6 +21,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-07-09
+### Milestone
+- 🎉 **First stable release.** The migration phase is complete: both Apps Script
+  projects — **StatsUpdate** (AutoUpdate Regs to Stats) and **StatsImport** (Stats
+  Align Pipeline) — are verified and tested working end-to-end in their new
+  Git/clasp home. From here we follow strict Semantic Versioning.
+
+### Notes
+- No code changes from `v0.1.5`; this release promotes the verified `0.1.5` state
+  to the first stable, production-ready version.
+- BUG-005 (name-spelling clears/duplicates a registered player) resolved: the
+  review-only name-mismatch detection shipped in `v0.1.5` is accepted as the
+  resolution. Optional match-key normalization remains a future enhancement, not
+  an open defect.
 
 ## [0.1.5] - 2026-07-08
 ### Added

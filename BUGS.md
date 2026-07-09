@@ -263,14 +263,14 @@ deleted; it is not referenced by any sheet.)
 
 ---
 
-## BUG-005 · [STATUS: In Progress]
+## BUG-005 · [STATUS: RV]
 
 **Title:** Name-spelling differences silently clear a registered player and re-add them as a duplicate
 
 **Severity:** Medium
 **Date Reported:** 2026-07-08
 **Release Found:** v0.1.0 (pre-existing in the original implementation)
-**Release Fixed:** N/A — mitigation (detection) shipped in v0.1.5; root-cause fix deferred by design
+**Release Fixed:** v0.1.5 (detection shipped) — accepted as resolved in v1.0.0
 
 ### Observable Problem
 A player who is genuinely registered can be reported as **"Cleared
@@ -319,11 +319,13 @@ Mitigation shipped in v0.1.5 (review-only, zero data change):
 - Verified by committed Node `vm` harness `tests/name-mismatch.test.js` (10/10),
   including a true-negative check that different last names are NOT flagged.
 
-Deferred root-cause options (not yet implemented; see roadmap): (a) normalize the
-match key (lowercase + collapse whitespace + strip punctuation) on both sides;
-(b) fuzzy fallback before clearing (higher collateral-damage risk — could merge
-different people). Status stays **In Progress** because the underlying exact-match
-gap remains; only detection is in place.
+Deferred root-cause options (optional future enhancement, not an open defect;
+see roadmap): (a) normalize the match key (lowercase + collapse whitespace + strip
+punctuation) on both sides; (b) fuzzy fallback before clearing (higher
+collateral-damage risk — could merge different people). Status **RV**: the
+review-only detection was accepted as the resolution in v1.0.0 — the human-in-the-loop
+warning is sufficient for this workflow, and a fully automatic match is deliberately
+avoided to prevent merging genuinely different players.
 
 ### Workaround
 When the tool flags a possible mismatch, verify the pair. If it's the same child,

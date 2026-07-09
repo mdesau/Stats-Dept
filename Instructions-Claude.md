@@ -7,13 +7,13 @@
 
 ## Current State
 
-- **Repo version:** `0.1.5` (initial development phase, `0.x.x`).
-- **Last commit:** `3bd7efd` — feat: add review-only name-mismatch detection for cleared players (BUG-005).
-- **Last release tag:** `v0.1.5`.
-- **Uncommitted work:** none — cleared-logic name-mismatch **detection** (review-only
-  safety net, BUG-005 mitigation, deployed to production and verified),
-  `findPossibleNameMismatches()` helper, `tests/name-mismatch.test.js` (10/10),
-  and all doc updates were committed and released as `v0.1.5` this session.
+- **Repo version:** `1.0.0` — 🎉 **first stable release** (migration phase complete).
+- **Last commit:** `be4c38d` — docs: record v0.1.5 release commit hash *(1.0.0 release commit hash recorded in the follow-up docs commit).*
+- **Last release tag:** `v1.0.0`.
+- **Uncommitted work:** none — 1.0.0 milestone release (both projects verified
+  end-to-end; BUG-005 accepted as resolved via the v0.1.5 review-only detection;
+  README badge → 1.0.0, CHANGELOG `[1.0.0]`, docs updated) committed and tagged
+  `v1.0.0` this session.
 - **Tagging policy:** tag every release that contains anything beyond pure doc
   updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
   changes stay under `[Unreleased]` with no tag.
@@ -25,7 +25,7 @@
 - **Documentation status:** 
   - README.md updated with "Seasonal Operations Workflow" section (concise SOP)
   - `How To Build Draft Stats.docx` committed (full procedural guide with screenshots)
-- **Next phase priority:** Code quality assessment (see "Active Task" below)
+- **Next phase priority:** StatsImport code-quality assessment (see "Active Task" below)
 
 ### Accounts (IMPORTANT)
 Both **production** projects are owned/accessed via the org account
@@ -53,30 +53,30 @@ re-run `clasp login --user gamechanger`.
 
 ## Active Task (Priority)
 
-**Verify + test both projects in the clasp workflow — the gate to `1.0.0`**
+**Post-1.0.0: StatsImport code-quality assessment**
 
-Confirm each Apps Script project runs correctly end-to-end in its new
-Git/clasp home. This is the milestone that ends the migration phase: once the
-user confirms everything is working, we cut **`1.0.0`** (first stable,
-production-ready release).
+The migration gate is **DONE** — `v1.0.0` shipped on 2026-07-09 with both projects
+verified end-to-end in the clasp workflow. Next up is the first item on the
+post-1.0.0 roadmap: a deep-dive on `StatsImport/StatsAlignPipeline-6.3-Stable.js`
+against `PRACTICES-AND-PRINCIPLES.md` to decide whether a refactor/optimization is
+warranted.
 
 **Context:**
 - Two projects: `StatsImport` (Stats Align Pipeline, v6.3) and `StatsUpdate`
-  (AutoUpdate Regs to Stats, v2.4).
-- Recent fixes (BUG-001, BUG-002) shipped in `v0.1.3` need real-world
-  confirmation on live imports.
+  (AutoUpdate Regs to Stats, v2.4) — both now at repo version `1.0.0`.
+- StatsUpdate received focused fixes this migration (BUG-003/004/005);
+  StatsImport has not yet had a standards pass.
 
 **Approach:**
-1. User exercises each project's real workflow (imports, sync, AI paths).
-2. Capture any defects in `BUGS.md`; fix and re-verify as needed.
-3. On user confirmation that everything works → cut **`1.0.0`** (update code
-   version, `CHANGELOG.md`, tag `v1.0.0`, push).
+1. Read `StatsAlignPipeline-6.3-Stable.js` against the practices doc.
+2. Log any defects in `BUGS.md`; capture improvement ideas as roadmap items.
+3. Propose (don't auto-apply) a refactor plan; discuss tradeoffs before changing code.
 
 **Expected outcome:**
-- User-confirmed working pipeline, then a tagged `v1.0.0` release.
+- A shared understanding of StatsImport's health and a prioritized improvement plan.
 
-**After `1.0.0`:** work through the remainder of the To Do / Roadmap list
-(code assessment, account consolidation, file renames, then code changes).
+**SemVer from here:** we are past `1.0.0`, so strict SemVer applies — breaking
+changes bump MAJOR, backwards-compatible features bump MINOR, fixes bump PATCH.
 
 ---
 
@@ -84,14 +84,12 @@ production-ready release).
 
 Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md`.)
 
-- [ ] **⭐ Verify + test each project in its new (clasp) workflow (PRIORITY).**
-  This is the gate that ends the migration phase. Once the user confirms both
-  projects work end-to-end, cut **`1.0.0`** (first stable release). See
-  "Active Task" above.
-- [ ] **Code assessment: StatsImport.** Deep-dive on
+- [x] **⭐ Verify + test each project in its new (clasp) workflow (DONE →
+  `v1.0.0`, 2026-07-09).** Both projects confirmed working end-to-end; this gate
+  ended the migration phase and cut the first stable release.
+- [ ] **⭐ Code assessment: StatsImport (NEXT PRIORITY).** Deep-dive on
   `StatsAlignPipeline-6.3-Stable.js` against `PRACTICES-AND-PRINCIPLES.md`.
-  Determine if refactor/optimization is warranted. *Unblocked — best-practices
-  doc now delivered. Scheduled for after `1.0.0`.*
+  Determine if refactor/optimization is warranted. *See "Active Task" above.*
 - [ ] **Account consolidation (decide + execute).** The two projects are owned by
   different Google accounts (`mdesau@gmail.com` vs `gamechanger@wcwaabaseball.org`).
   Everything works today via clasp named users, but the org account creates a
@@ -112,17 +110,17 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
   Renaming touches the cloud project (file identity) so it belongs to the code
   phase, not this migration. When done, update `appsscript.json`/clasp as needed
   and `clasp push` deliberately.
-- [~] **Review "Cleared (unregistered)" player logic.** In
+- [x] **Review "Cleared (unregistered)" player logic.** In
   `updateStatsFromRegistrations()` (StatsUpdate), audit how players who are no
   longer in the current Registrations get their draft fields cleared. *Reviewed
-  (this session): confirmed the gap — exact full-name matching wrongly clears a
+  and RESOLVED: confirmed the gap — exact full-name matching wrongly clears a
   registered player and re-adds a duplicate when the name is spelled differently
-  (BUG-005).* **Mitigation shipped in v0.1.5:** review-only detection
+  (BUG-005).* **Resolution (v0.1.5, accepted in v1.0.0):** review-only detection
   (`findPossibleNameMismatches()`) flags cleared↔added same-last-name pairs in the
-  popup/log for human verification — no data is auto-changed. **Deferred root-cause
-  fix** (optional, next phase): normalize the match key (lowercase + collapse
-  whitespace + strip punctuation) on both sides; consider a fuzzy fallback only if
-  normalization proves insufficient (higher collateral-damage risk).
+  popup/log for human verification — no data is auto-changed. **Optional future
+  enhancement** (not an open defect): normalize the match key (lowercase + collapse
+  whitespace + strip punctuation); consider a fuzzy fallback only if normalization
+  proves insufficient (higher collateral-damage risk).
 - [ ] Only after the above: consider actual code changes (a new, separate phase).
 - [ ] **🚀 Major change / Feature (targets `2.0.0`): bulk import from folder.**
   Investigate the ability to implement a "bulk import" feature that ingests
