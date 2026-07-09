@@ -127,6 +127,10 @@ Non-bug, forward-looking tasks for the migration. (Actual defects go in `BUGS.md
   multiple coach CSVs directly from a folder (e.g. Google Drive) in one run,
   rather than one file at a time. Breaking/behavior-changing scope → will land
   as a `2.0.0` release when built.
+- [ ] **StatsUpdate AI Scout follow-up (deferred).** Verify/restore the
+  Scouting Assistant dialog handlers (`showAiScoutInputDialog`,
+  `showAiScoutDialog`, `showAiDialog`) in the active script layout so the menu
+  path is fully wired before enabling broader AI Scout work.
 
 ---
 

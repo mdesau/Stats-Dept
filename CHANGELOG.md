@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-09
 ### Changed
 - Simplified the active Apps Script source filenames to `StatsUpdate.js` and
   `StatsImport-and-Align.js` so the repo, GitHub, and Apps Script project no
@@ -29,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the deprecated legacy StatsImport source files
   `StatsAlignPipeline-v4.6-Stable.js` and `StatsAlignPipeline-v5.0-Stable.js`
   so only the active import pipeline source remains in that project.
+- StatsUpdate hardening: AI calls now use the stable model alias
+  `gemini-2.5-flash` instead of preview model names, and
+  `updateStatsFromRegistrations()` now validates required headers for
+  `Draft_Stats`, `Registrations`, and `Challenge` before processing data.
 
 ## [1.0.0] - 2026-07-09
 ### Milestone

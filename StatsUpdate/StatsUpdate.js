@@ -113,6 +113,9 @@ const API_KEY = PropertiesService.getScriptProperties().getProperty("GEMINI_API_
 /** Name of the log sheet used for sync runs. */
 const LOG_SHEET_NAME = "Automation Log";
 
+/** Stable Gemini model alias used across StatsUpdate AI tools. */
+const GEMINI_MODEL_STABLE = "gemini-2.5-flash";
+
 /**
  * DIVISION MAPPING CONFIGURATION
  * ----------------------------------------------------------------------------
@@ -304,6 +307,27 @@ function updateStatsFromRegistrations() {
     const statsMap = getMap(statsHeaders);
     const regMap = getMap(regHeaders);
     const chalMap = getMap(chalHeaders);
+
+    validateRequiredHeaders("Draft_Stats", statsMap, [
+      "player first name",
+      "player last name",
+      "player birth date",
+      "draft",
+      "special player requests",
+      "challenge",
+    ]);
+    validateRequiredHeaders("Registrations", regMap, [
+      "player first name",
+      "player last name",
+      "player birth date",
+      "division name",
+      "special player request",
+    ]);
+    validateRequiredHeaders("Challenge", chalMap, [
+      "player first name",
+      "player last name",
+      "team name",
+    ]);
 
     // 4) Build lookup maps from Registrations and Challenge
     const registrationsMap = new Map();
@@ -1258,10 +1282,10 @@ function runSanityChecker() {
  */
 class GeminiClient {
   /**
-   * @param {string} model - e.g., "gemini-3-flash-preview"
+   * @param {string} model - e.g., "gemini-2.5-flash"
    * @param {number} temperature - Creativity level (0.0 to 1.0)
    */
-  constructor(model = "gemini-3-flash-preview", temperature = 0.5) {
+  constructor(model = GEMINI_MODEL_STABLE, temperature = 0.5) {
     this.apiKey = API_KEY;
     this.modelName = model;
     this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -1547,7 +1571,7 @@ function runNegativeCoachAssistant() {
         JSON.stringify(batch.map(it => ({ index: it.index, request: it.text })));
 
       try {
-        const client = new GeminiClient("gemini-3-flash-preview", 0.1);
+        const client = new GeminiClient(GEMINI_MODEL_STABLE, 0.1);
         labels = client.generateJson(prompt, {
           maxTokens: 1024,
           systemInstruction: "You are a cautious youth baseball league administrator focused on player safety and family comfort."
@@ -1598,7 +1622,7 @@ function runNegativeCoachAssistant() {
     `Batches planned: (${batchesPlanned}) --- ` +
     `Approx note tokens this run: (${approxTokens} estimate)`;
 
-  logAiActivity("Negative Coach Assistant", "gemini-3-flash-preview", details);
+  logAiActivity("Negative Coach Assistant", GEMINI_MODEL_STABLE, details);
 
   ui.alert(
     "Negative Coach Request Assistant",
@@ -1644,7 +1668,7 @@ function processScoutingQuestion(userPrompt) {
     ui.alert("AI Scouting Assistant", "Analyzing draft board... This may take a moment.", ui.ButtonSet.OK);
     
     // Call Gemini via new Client
-    const client = new GeminiClient("gemini-3-flash-preview", 0.7);
+    const client = new GeminiClient(GEMINI_MODEL_STABLE, 0.7);
     const response = client.generateText(fullPrompt, {
        maxTokens: 2048,
        systemInstruction: "You are an experienced youth baseball scout who analyzes players holistically, " +
@@ -1656,7 +1680,7 @@ function processScoutingQuestion(userPrompt) {
     const queryPreview = userPrompt.length > 50 ? userPrompt.slice(0, 50) + "..." : userPrompt;
     logAiActivity(
       "Ask AI Scouting Assistant",
-      "gemini-3-flash-preview",
+      GEMINI_MODEL_STABLE,
       `Query: (${queryPreview}) --- Players analyzed: (${Math.min(draftContext.playerCount, 50)})`
     );
     
@@ -1678,7 +1702,7 @@ function aiDraftSummary() {
     
     const prompt = `Analyze this draft board and provide a high-level executive summary including top talent trends.\n\nDATA:\n${JSON.stringify(draftContext.data)}`;
     
-    const client = new GeminiClient("gemini-3-flash-preview", 0.5);
+    const client = new GeminiClient(GEMINI_MODEL_STABLE, 0.5);
     const response = client.generateText(prompt, {
        maxTokens: 1000,
        systemInstruction: "You are a professional baseball scout. Your tone is analytical and concise."
@@ -1687,7 +1711,7 @@ function aiDraftSummary() {
     // Log usage with standardized format
     logAiActivity(
       "Draft Insights",
-      "gemini-3-flash-preview",
+      GEMINI_MODEL_STABLE,
       `Players analyzed: (${draftContext.playerCount}) --- Summary generated`
     );
 
@@ -1706,7 +1730,7 @@ function aiDraftSummary() {
  * Logs AI tool activity to the Automation Log sheet with standardized format.
  * 
  * @param {string} agentName - Name of the AI agent (e.g., "Negative Coach Assistant")
- * @param {string} modelName - Gemini model used (e.g., "gemini-3-flash-preview")
+ * @param {string} modelName - Gemini model used (e.g., "gemini-2.5-flash")
  * @param {string} details - Tool-specific details (e.g., metrics, results)
  */
 function logAiActivity(agentName, modelName, details) {
@@ -1828,6 +1852,24 @@ function getMap(headers) {
     if (h) map[h.toString().toLowerCase().trim()] = i;
   });
   return map;
+}
+
+/**
+ * Ensures required headers are present before processing sheet data.
+ *
+ * @param {string} sheetName - Human-readable sheet name for error output.
+ * @param {Object<string, number>} map - Lowercase header map from getMap().
+ * @param {string[]} requiredHeaders - Required lowercase header names.
+ */
+function validateRequiredHeaders(sheetName, map, requiredHeaders) {
+  const missing = requiredHeaders.filter((header) => map[header] === undefined);
+  if (missing.length > 0) {
+    throw new Error(
+      `"${sheetName}" is missing required columns: ${missing
+        .map((h) => `"${h}"`)
+        .join(", ")}`,
+    );
+  }
 }
 
 /**
