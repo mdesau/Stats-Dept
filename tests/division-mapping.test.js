@@ -97,7 +97,7 @@ expectDivision("Advanced Machine Pitch - Little League Baseball", { excluded: fa
 expectDivision("Major - Little League Baseball", { excluded: false, label: "Majors" });
 expectDivision("Rookie - Coach Pitch - Little League Baseball", { excluded: true, label: "" });
 expectDivision("Evaluation - Little League Baseball", { excluded: true, label: "" });
-expectDivision("Junior - Little League Baseball", { excluded: true, label: "" });
+expectDivision("Junior - Little League Baseball", { excluded: false, label: "Juniors" });
 
 // ---------------------------------------------------------------------------
 // REGRESSION — older season spellings must keep working (keyword matching).

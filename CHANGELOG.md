@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-10
+### Changed
+- StatsUpdate: Juniors are now draft-eligible in `updateStatsFromRegistrations()`.
+  Junior division players now receive synced `Player Birth Date`, `Draft`, and
+  `Challenge` values (using `Draft = "Juniors"`), instead of being excluded.
+
 ## [1.0.1] - 2026-07-09
 ### Changed
 - Simplified the active Apps Script source filenames to `StatsUpdate.js` and

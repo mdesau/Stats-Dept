@@ -1,6 +1,6 @@
 # Stats-Dept
 
-![version](https://img.shields.io/badge/version-1.0.1-blue)
+![version](https://img.shields.io/badge/version-1.1.0-blue)
 
 Version-controlled home for the **WCWAA Stats Department** youth-baseball
 automation tools. These are [Google Apps Script](https://developers.google.com/apps-script)

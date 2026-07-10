@@ -78,7 +78,7 @@
  * EXCLUDED DIVISIONS:
  * Players in these divisions are cleared from the draft board (matched by
  * keyword, see EXCLUDED_DIV_KEYWORDS):
- * - Rookie / Coach Pitch, Tee Ball, Evaluation, Junior
+ * - Rookie / Coach Pitch, Tee Ball, Evaluation
  *
  * COUNTING METHODOLOGY:
  * - Unique players only: Multiple rows per player (multi-season history) count as ONE player
@@ -148,7 +148,7 @@ const GEMINI_MODEL_STABLE = "gemini-2.5-flash";
  * appears (case-insensitively) in the division name, that rule's `label` is
  * written to the Draft_Stats "Draft" column. Rules are evaluated top-to-bottom
  * and the first matching rule wins. Labels must match the values the downstream
- * Mock Draft expects: "IMP", "AMP", "Minors", "Majors".
+ * Mock Draft expects: "IMP", "AMP", "Minors", "Majors", "Juniors".
  *
  * Each rule lists every spelling the league has used so both current and past
  * season names map correctly. To support a new wording, add a keyword — you do
@@ -160,6 +160,7 @@ const DIVISION_RULES = [
   { keywords: ["Advanced", "AMP"], label: "AMP" },        // "Advanced Machine Pitch" / older "AMP Machine Pitch"
   { keywords: ["Major"], label: "Majors" },               // "Major - Little League Baseball" / older "Majors"
   { keywords: ["Minor"], label: "Minors" },               // "Minor - Player Pitch"
+  { keywords: ["Junior"], label: "Juniors" },             // "Junior - Little League Baseball"
 ];
 
 /**
@@ -173,7 +174,6 @@ const EXCLUDED_DIV_KEYWORDS = [
   "Rookie",
   "Tee Ball",
   "Evaluation",
-  "Junior",
 ];
 
 /**
