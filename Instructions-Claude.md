@@ -7,13 +7,10 @@
 
 ## Current State
 
-- **Repo version:** `1.0.0` — 🎉 **first stable release** (migration phase complete).
-- **Last commit:** `bb100d9` — refactor: simplify Apps Script filenames.
-- **Last release tag:** `v1.0.0`.
-- **Uncommitted work:** none — active Apps Script files were renamed to
-  `StatsUpdate.js` and `StatsImport-and-Align.js`; deprecated StatsImport `v4.6`
-  / `v5.0` files were removed locally, from GitHub-tracked source, and from the
-  cloud project via clasp.
+- **Repo version:** `1.1.0`.
+- **Last commit:** `aca8a79` — feat: include Juniors in draft stats sync.
+- **Last release tag:** `v1.1.0`.
+- **Uncommitted work:** none — working tree clean after releasing `v1.1.0`.
 - **Tagging policy:** tag every release that contains anything beyond pure doc
   updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
   changes stay under `[Unreleased]` with no tag.
@@ -23,7 +20,8 @@
   simplified active filenames `StatsUpdate/StatsUpdate.js` and
   `StatsImport/StatsImport-and-Align.js`. Deprecated StatsImport legacy files
   were removed from the tracked project and cloud script so local, GitHub, and
-  Apps Script now share the same lean file set.
+  Apps Script now share the same lean file set. StatsUpdate now includes Juniors
+  in `updateStatsFromRegistrations()` with `Draft = "Juniors"` (no longer excluded).
 - **Documentation status:** 
   - README.md updated with "Seasonal Operations Workflow" section (concise SOP)
   - `How To Build Draft Stats.docx` committed (full procedural guide with screenshots)
