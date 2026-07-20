@@ -37,7 +37,7 @@ were first exported from the Apps Script editor — kept as a historical baselin
 Each draft-prep season follows a standardized pipeline to build and sync player statistics. The process is ~95% automated; historically this was manual and error-prone.
 
 ### Full procedure documentation
-For detailed step-by-step instructions with screenshots, see [`How To Build Draft Stats.docx`](./How%20To%20Build%20Draft%20Stats.docx).
+For detailed step-by-step instructions with screenshots, see [`How To Build Draft Stats.docx`](./docs/How%20To%20Build%20Draft%20Stats.docx).
 
 
 ### High-level flow
@@ -159,8 +159,8 @@ clasp login
 This project follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 and reached its **first stable release (`1.0.0`)** on 2026-07-09 — both Apps Script
 projects are verified and tested stable in their Git/clasp home. See
-[`CHANGELOG.md`](./CHANGELOG.md) for the release history and
-[`BUGS.md`](./BUGS.md) for the bug tracker.
+[`docs/CHANGELOG.md`](./docs/CHANGELOG.md) for the release history and
+[`docs/BUGS.md`](./docs/BUGS.md) for the bug tracker.
 
 - Releases are git-tagged (`v0.1.0`, …, `v1.0.0`).
 - Day-to-day changes are logged under `[Unreleased]` in the changelog.
