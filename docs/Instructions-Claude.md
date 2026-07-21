@@ -7,10 +7,12 @@
 
 ## Current State
 
-- **Repo version:** `1.1.0`.
-- **Last commit:** `aca8a79` — feat: include Juniors in draft stats sync.
+- **Repo version:** `1.1.0` (working toward `1.2.0` — see below).
+- **Last commit:** `feat: add StatsImport duplicate detection` (docs move landed
+  just before it).
 - **Last release tag:** `v1.1.0`.
-- **Uncommitted work:** none — working tree clean after releasing `v1.1.0`.
+- **Uncommitted work:** none — duplicate-detection feature and docs move are both
+  committed. **Not yet pushed to clasp / live-tested** (see Code status).
 - **Tagging policy:** tag every release that contains anything beyond pure doc
   updates (code/config/bug fixes) with a SemVer patch/minor bump. Doc-only
   changes stay under `[Unreleased]` with no tag.
@@ -22,10 +24,17 @@
   were removed from the tracked project and cloud script so local, GitHub, and
   Apps Script now share the same lean file set. StatsUpdate now includes Juniors
   in `updateStatsFromRegistrations()` with `Draft = "Juniors"` (no longer excluded).
+  **NEW:** StatsImport gained a duplicate-detection component
+  (`StatsImport/DuplicateDetection.js`) wired into `aggregateAndAlignStats()`; it
+  warns + confirms before appending a possibly re-imported team to `Raw_Stats`.
+  ⚠️ **Still needs `clasp push --user gamechanger` + a live import test** before
+  it is tagged as `1.2.0`.
 - **Documentation status:** 
+  - All docs except `README.md` now live under `docs/`.
   - README.md updated with "Seasonal Operations Workflow" section (concise SOP)
   - `How To Build Draft Stats.docx` committed (full procedural guide with screenshots)
-- **Next phase priority:** StatsImport code-quality assessment (see "Active Task" below)
+- **Next phase priority:** live-test + push duplicate detection (→ tag `1.2.0`),
+  then the StatsImport code-quality assessment (see "Active Task" below)
 
 ### Accounts (IMPORTANT)
 Both **production** projects are owned/accessed via the org account
@@ -164,6 +173,15 @@ manifest/config needed for clasp sync.
 | `headerIsIdentity` / `mapIdentity` | Identity-tier header matching |
 | `callGemini` | Low-level Gemini API wrapper (JSON or text) |
 | `openLogsSheet` | Opens the Automation_Logs sheet |
+
+### StatsImport — Duplicate Detection (`DuplicateDetection`)
+| Function | What it does |
+|----------|--------------|
+| `confirmNoDuplicatesOrAbort` | Orchestrator called by `aggregateAndAlignStats()`: reads existing `Raw_Stats`, detects duplicates, shows the Yes/No dialog, logs on cancel, returns proceed/abort |
+| `detectDuplicates` | Pure: classifies incoming rows as exact re-import (identity + AVG) vs identity-only (possible update) |
+| `buildIdentityKey` | Pure: builds `number|last|first` identity key from a master-model row |
+| `normToken` | Pure: normalizes a cell (trim/lowercase/collapse whitespace) for comparison |
+| `resolveAvgColumn` | Finds the batting AVG master column index (tolerant of header variants) |
 
 ### StatsUpdate — AutoUpdate Regs to Stats (`StatsUpdate`)
 | Function | What it does |

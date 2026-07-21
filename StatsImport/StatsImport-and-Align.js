@@ -256,6 +256,23 @@ function aggregateAndAlignStats() {
     if (alignedRes.data.length === 0)
       throw new Error("No player rows aligned.");
 
+    // 6b) Duplicate detection (component: DuplicateDetection.js). Compares the
+    // aligned incoming rows against existing Raw_Stats and, if duplicates are
+    // found, prompts the user to confirm or cancel before anything is written.
+    if (
+      !confirmNoDuplicatesOrAbort(
+        ui,
+        rawStatsSheet,
+        alignedRes.data,
+        masterColMap,
+        masterFullRange[1].length,
+        timestamp,
+        logSheet,
+      )
+    ) {
+      return; // User cancelled; finally{} releases the lock (log written inside).
+    }
+
     // 7) Logging and data injection into Raw_Stats
     const missingInSource = masterKeys.filter(
       (k) => k && !Object.values(finalMap).includes(k),

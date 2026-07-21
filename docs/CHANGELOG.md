@@ -21,6 +21,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+### Added
+- **StatsImport: duplicate detection on import.** Before aligned rows are
+  appended to `Raw_Stats`, the import now compares the incoming players against
+  the existing sheet and, if duplicates are found, shows a Yes/No confirmation
+  so a re-imported team is not silently double-loaded. Detection is two-tier:
+  identity (jersey number + last + first, normalized) flags "already present,"
+  and identity **+ batting AVG** flags an "exact re-import" versus a same-player
+  "possible update" whose AVG changed. Choosing **No** aborts before any write
+  and records a `🛑 CANCELLED (duplicates)` row in `Automation_Logs`. The feature
+  lives in its own component `StatsImport/DuplicateDetection.js` (linked via the
+  shared Apps Script namespace) and never edits or deletes data.
+- `tests/duplicate-detection.test.js` — Node `vm` harness exercising the real
+  `buildIdentityKey`/`detectDuplicates` helpers (10/10 checks: exact re-import,
+  possible-update, true-negative, case/whitespace, no-AVG fallback, mixed batch).
+
+### Changed
+- Repository housekeeping: all docs except `README.md` now live under `docs/`
+  (`CHANGELOG.md`, `BUGS.md`, `Instructions-Claude.md`,
+  `PRACTICES-AND-PRINCIPLES.md`, `How To Build Draft Stats.docx`).
+
+> **Not yet released/tagged:** the duplicate-detection code is committed but
+> still needs a `clasp push` and a live import test in the Sheet before it is
+> promoted to a tagged release (next bump would be a MINOR → `1.2.0`).
 
 ## [1.1.0] - 2026-07-10
 ### Changed
